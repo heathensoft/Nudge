@@ -3,6 +3,7 @@ package nudge.io.serialization.database;
 import nudge.io.serialization.JsonBuilder;
 import nudge.io.serialization.exceptions.DataRecreationException;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -64,6 +65,14 @@ public class Database extends DBEntry {
         FileOutputStream stream = new FileOutputStream(path);
         stream.write(getBytes());
         stream.close();
+    }
+
+    public static Database deserializeFromFile(File file) throws IOException{
+        FileInputStream stream = new FileInputStream(file);
+        byte[] data = new byte[stream.available()];
+        int unused = stream.read(data);
+        stream.close();
+        return (Database) new Database().recreate(data);
     }
 
     public static Database deserializeFromFile(String path) throws IOException{

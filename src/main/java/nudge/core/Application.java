@@ -6,5 +6,18 @@ package nudge.core;
  */
 
 
-public interface Application {
+public abstract class Application {
+
+
+
+
+    // String title();
+    // String windowTitle();
+    // int versionMinor();
+    // int versionMajor();
+    // int runtime();
+
+
+
+
 }

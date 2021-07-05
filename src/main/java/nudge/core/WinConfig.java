@@ -6,5 +6,7 @@ package nudge.core;
  */
 
 
-public class Config {
+public class WinConfig {
+
+
 }

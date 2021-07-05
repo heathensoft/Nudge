@@ -8,4 +8,6 @@ package nudge.core;
 
 public class Window {
 
+
+
 }
