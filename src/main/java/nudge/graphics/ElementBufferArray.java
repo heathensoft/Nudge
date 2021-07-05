@@ -2,11 +2,17 @@ package nudge.graphics;
 
 import static org.lwjgl.opengl.GL15.*;
 
-public class EBO {
+/**
+ * @author Frederik Dahl
+ * XX/06/2021
+ */
+
+public class ElementBufferArray {
 
     private final int id;
+    private int primitiveType;
 
-    public EBO() { id = glGenBuffers(); }
+    public ElementBufferArray() { id = glGenBuffers(); }
 
     public void bind(int target) { glBindBuffer(target, id); }
 
@@ -26,6 +32,7 @@ public class EBO {
                 indices[i + 5] = j;
             }
             uploadData(indices);
+            primitiveType = GL_UNSIGNED_SHORT;
         }
         else {
             final int[] indices = new int[len];
@@ -39,6 +46,7 @@ public class EBO {
                 indices[i + 5] = j;
             }
             uploadData(indices);
+            primitiveType = GL_UNSIGNED_INT;
         }
     }
 
@@ -49,6 +57,8 @@ public class EBO {
     public void uploadData(final int[] indices) {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
     }
+
+    public int primitiveType() { return primitiveType; }
 
     public void delete() { glDeleteBuffers(id); }
 }

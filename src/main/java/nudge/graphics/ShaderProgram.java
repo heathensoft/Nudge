@@ -12,7 +12,7 @@ import static org.lwjgl.opengl.GL30.glBindFragDataLocation;
 
 /**
  * @author Frederik Dahl
- * 29/06/2021
+ * XX/06/2021
  */
 
 public class ShaderProgram {
@@ -69,9 +69,23 @@ public class ShaderProgram {
         glUniform1i(location, value);
     }
 
+    public void setUniform(String name, float value) {
+
+        int location = getUniformLocation(name);
+
+        glUniform1f(location, value);
+    }
+
     public void setUniform(int location, float value) {
 
         glUniform1f(location, value);
+    }
+
+    public void setUniform(String name, Vector2f value) {
+
+        int location = getUniformLocation(name);
+
+        setUniform(location,value);
     }
 
     public void setUniform(int location, Vector2f value) {
@@ -84,14 +98,45 @@ public class ShaderProgram {
         }
     }
 
+    public void setUniform(String name, Vector3f value) {
+
+        int location = getUniformLocation(name);
+
+        setUniform(location,value);
+    }
+
     public void setUniform(int location, Vector3f value) {
 
-        glUniform3f(location,value.x,value.y,value.z);
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            FloatBuffer buffer = stack.mallocFloat(3);
+            buffer.put(value.x).put(value.y).put(value.z);
+            buffer.flip();
+            glUniform3fv(location, buffer);
+        }
+    }
+
+    public void setUniform(String name, Vector4f value) {
+
+        int location = getUniformLocation(name);
+
+        setUniform(location,value);
     }
 
     public void setUniform(int location, Vector4f value) {
 
-        glUniform4f(location,value.x,value.y,value.z,value.w);
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            FloatBuffer buffer = stack.mallocFloat(4);
+            buffer.put(value.x).put(value.y).put(value.z).put(value.w);
+            buffer.flip();
+            glUniform4fv(location, buffer);
+        }
+    }
+
+    public void setUniform(String name, Matrix3f value) {
+
+        int location = getUniformLocation(name);
+
+        setUniform(location,value);
     }
 
     public void setUniform(int location, Matrix3f value) {
@@ -103,6 +148,13 @@ public class ShaderProgram {
         }
     }
 
+    public void setUniform(String name, Matrix4f value) {
+
+        int location = getUniformLocation(name);
+
+        setUniform(location,value);
+    }
+
     public void setUniform(int location, Matrix4f value) {
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -110,6 +162,13 @@ public class ShaderProgram {
             value.get(buffer);
             glUniformMatrix4fv(location, false, buffer);
         }
+    }
+
+    public void setUniform(String name, int[] array) {
+
+        int location = getUniformLocation(name);
+
+        setUniform(location,array);
     }
 
     public void setUniform(int location, int[] array) {

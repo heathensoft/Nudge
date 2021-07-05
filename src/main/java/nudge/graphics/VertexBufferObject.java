@@ -10,11 +10,11 @@ import static org.lwjgl.opengl.GL15.*;
  * 29/06/2021
  */
 
-public class VBO {
+public class VertexBufferObject {
 
     private final int id;
 
-    public VBO() { id = glGenBuffers(); }
+    public VertexBufferObject() { id = glGenBuffers(); }
 
     public void bind(int target) { glBindBuffer(target, id); }
 

@@ -7,11 +7,11 @@ import static org.lwjgl.opengl.GL30.*;
  * 29/06/2021
  */
 
-public class VAO {
+public class VertexAttributeArray {
 
     private final int id;
 
-    public VAO() { id = glGenVertexArrays(); }
+    public VertexAttributeArray() { id = glGenVertexArrays(); }
 
     public void bind() { glBindVertexArray(id); }
 
