@@ -1,4 +1,4 @@
-package nudge.util;
+package nudge.util.text;
 
 /**
  * @author Frederik Dahl

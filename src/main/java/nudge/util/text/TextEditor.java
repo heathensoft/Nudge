@@ -1,4 +1,4 @@
-package nudge.util;
+package nudge.util.text;
 
 import java.util.Iterator;
 import java.util.function.Consumer;
