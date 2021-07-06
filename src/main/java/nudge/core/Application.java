@@ -8,8 +8,8 @@ package nudge.core;
 
 public abstract class Application {
 
-
-
+    private Settings settings;
+    private Timer timer;
 
     // String title();
     // String windowTitle();

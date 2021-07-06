@@ -17,9 +17,23 @@ import java.io.IOException;
 
 public class Settings {
 
-    // Temp
-    public static final String DEFAULT_PATH = "settings";
-    public static final String FILE_EXTENSION = ".bin";
+    static {
+
+        StringBuilder sb;
+        String s = File.separator;
+        String home = System.getProperty("user.home");
+        sb = new StringBuilder(home).append(s).append("Documents").append(s);
+        sb.append("NudgeGames").append(s).append("Temp").append(s).append("Settings").append(s);
+
+        DEFAULT_DIRECTORY = sb.toString();
+        FILE_NAME = "settings";
+        FILE_EXTENSION = ".bin";
+    }
+
+    public static final String DEFAULT_DIRECTORY;
+    public static final String FILE_NAME;
+    public static final String FILE_EXTENSION;
+    private String directory;
 
     private boolean useMonitorAspectRatio = false;
     private boolean vsyncEnabled = false;
@@ -41,15 +55,60 @@ public class Settings {
 
 
     public Settings() {
-        try {
-            load();
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Could not load settings.bin");
-            System.out.println("Default settings enabled");
-        }
+
+        this(true);
     }
 
+    public Settings(boolean tryLoad) {
+
+        this(tryLoad,DEFAULT_DIRECTORY);
+
+    }
+
+    public Settings(boolean tryLoad, String directory) {
+
+        setDirectory(directory);
+
+        if (tryLoad) {
+            try { load();
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("Could not load: " + this.directory + FILE_NAME + FILE_EXTENSION);
+                System.out.println("Default application settings enabled");
+            }
+        }
+
+
+    }
+
+    public void setDirectory(String path) {
+        String s = File.separator;
+        path = path.replace('/',s.charAt(0));
+        if (!path.endsWith(s)) {
+            directory = path.concat(s);
+        }
+        else directory = path;
+    }
+
+    public String getDirectory() {
+        return directory;
+    }
+
+    public void setTarget_fps(int value) {
+        target_fps = value;
+    }
+
+    public void setTarget_ups(int value) {
+        target_ups = value;
+    }
+
+    public void setTarget_ResolutionHeight(int h) {
+        target_ResolutionHeight = h;
+    }
+
+    public void setTarget_ResolutionWidth(int w) {
+        target_ResolutionWidth = w;
+    }
 
     public void setTarget_AspectRatio(float w, float h) {
         target_AspectRatio = w/h;
@@ -103,24 +162,28 @@ public class Settings {
         audio_music *= audio_master;
     }
 
+    public boolean onDisk() {
+        File settingsFile = new File(directory + FILE_NAME + FILE_EXTENSION);
+        return settingsFile.exists();
+    }
 
     public void load() throws IOException {
 
-        File settingsFile = new File(DEFAULT_PATH + FILE_EXTENSION);
+        File settingsFile = new File(directory + FILE_NAME + FILE_EXTENSION);
 
-        if (settingsFile.isFile()) {
+        if (settingsFile.exists()) {
 
-            Database database = Database.deserializeFromFile(settingsFile);
+            Database database = Database.deserializeFromFile(settingsFile);;
 
             DBObject settings = database.findObject("settings");
 
-            boolean[] boolArr = settings.findArray("bools").boolData();
+            boolean[] booleans = settings.findArray("booleans").boolData();
 
-            useMonitorAspectRatio = boolArr[0];
-            vsyncEnabled = boolArr[1];
-            resizable = boolArr[2];
-            fullScreen = boolArr[3];
-            muted = boolArr[4];
+            useMonitorAspectRatio = booleans[0];
+            vsyncEnabled = booleans[1];
+            resizable = booleans[2];
+            fullScreen = booleans[3];
+            muted = booleans[4];
 
             target_AspectRatio = settings.findField("aspectRatio").getFloat();
             target_ResolutionWidth = settings.findField("resolutionWidth").getInt();
@@ -129,19 +192,28 @@ public class Settings {
             target_fps = settings.findField("fps").getInt();
 
             audio_master = settings.findField("audioMaster").getFloat();
-            audio_master = settings.findField("audioEffects").getFloat();
-            audio_master = settings.findField("audioDialogue").getFloat();
-            audio_master = settings.findField("audioAmbient").getFloat();
-            audio_master = settings.findField("audioMusic").getFloat();
+            audio_effects = settings.findField("audioEffects").getFloat();
+            audio_dialogue = settings.findField("audioDialogue").getFloat();
+            audio_ambient = settings.findField("audioAmbient").getFloat();
+            audio_music = settings.findField("audioMusic").getFloat();
         }
     }
 
     public void save() {
 
+        File directory = new File(this.directory);
+
+        if (!directory.exists()) {
+            if (!directory.mkdirs()) {
+                System.out.println("Failed to save the application settings. Could not create directory");
+                return;
+            }
+        }
+
         Database database = new Database("db");
         DBObject settings = new DBObject("settings");
 
-        DBArray bools = new DBArray("bools",new boolean[] {
+        DBArray booleans = new DBArray("booleans",new boolean[] {
 
                 useMonitorAspectRatio,
                 vsyncEnabled,
@@ -150,7 +222,7 @@ public class Settings {
                 muted
         });
 
-        settings.add(bools);
+        settings.add(booleans);
 
         DBField aspectRatio = new DBField("aspectRatio",target_AspectRatio);
         DBField resolutionWidth = new DBField("resolutionWidth",target_ResolutionWidth);
@@ -178,13 +250,13 @@ public class Settings {
 
         database.add(settings);
 
-        // todo: again look into exceptions in the serialization packet
+        // todo: again, look into exceptions in the serialization packet
 
         try {
-            database.serializeToFile(DEFAULT_PATH + FILE_EXTENSION);
+            database.serializeToFile(this.directory + FILE_NAME + FILE_EXTENSION);
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("Could not save the application settings");
+            System.out.println("Failed to save the application settings. Could not read Database");
         }
 
     }

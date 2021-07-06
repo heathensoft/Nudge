@@ -12,6 +12,7 @@ import java.util.List;
 public class Camera {
 
 
+    /*
     private final Rectanglef worldView;
     private final Matrix4f projectionMatrix;
     private final Matrix4f inverseProjection;
@@ -265,4 +266,6 @@ public class Camera {
     public float zoomCeil() {
         return zoomCeil;
     }
+
+     */
 }

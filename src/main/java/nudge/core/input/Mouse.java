@@ -7,6 +7,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class Mouse {
 
+    /*
     // todo update mousePos when camera moves
 
     // https://www.glfw.org/docs/3.3/input_guide.html#input_mouse
@@ -276,4 +277,6 @@ public class Mouse {
         }
         else return false;
     }
+
+     */
 }

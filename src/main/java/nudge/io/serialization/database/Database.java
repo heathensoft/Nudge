@@ -62,7 +62,12 @@ public class Database extends DBEntry {
     }
 
     public void serializeToFile(String path) throws IOException{
-        FileOutputStream stream = new FileOutputStream(path);
+        serializeToFile(new File(path));
+    }
+
+    public void serializeToFile(File file) throws IOException{
+        // will and should overwrite existing files
+        FileOutputStream stream = new FileOutputStream(file);
         stream.write(getBytes());
         stream.close();
     }
@@ -72,15 +77,18 @@ public class Database extends DBEntry {
         byte[] data = new byte[stream.available()];
         int unused = stream.read(data);
         stream.close();
-        return (Database) new Database().recreate(data);
+
+        Database database;
+        try { database = (Database) new Database().recreate(data);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            e.printStackTrace();
+            throw new IOException("Serialization Error: Corrupted File");
+        }
+        return database;
     }
 
     public static Database deserializeFromFile(String path) throws IOException{
-        FileInputStream stream = new FileInputStream(path);
-        byte[] data = new byte[stream.available()];
-        int unused = stream.read(data);
-        stream.close();
-        return (Database) new Database().recreate(data);
+        return deserializeFromFile(new File(path));
     }
 
     @Override
