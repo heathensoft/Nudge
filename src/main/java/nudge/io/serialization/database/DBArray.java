@@ -157,7 +157,7 @@ public class DBArray extends DBEntry {
     protected DBArray recreate(byte[] data, int[] pointer) throws DataRecreationException {
 
         if (readByte(data,pointer) != CONTAINER_TYPE)
-            throw new DataRecreationException("UnMatching ISerializable types");
+            throw new DataRecreationException("UnMatching Serializable types");
 
         nameSize = readByte(data,pointer);
         nameData = new byte[nameSize];

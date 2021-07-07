@@ -204,11 +204,10 @@ public class Serializer {
 
     public static void readBoolArray(byte [] src, int[] pointer, boolean[] dest){
         int numBytes = (int) (Math.ceil(dest.length / 8f));
-        pointer[0] += numBytes;
         for(int i = 0; i < numBytes; i++){
             for(int j = i << 3, k = 7; k >= 0 && j < dest.length; j++, k--){
-                dest[j] = (src[i] & (1 << k)) != 0;
-            }
+                dest[j] = (src[pointer[0]] & (1 << k)) != 0;
+            } pointer[0]++;
         }
     }
 

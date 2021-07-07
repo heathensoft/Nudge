@@ -17,6 +17,10 @@ import java.io.IOException;
 
 public class Settings {
 
+    public static final String DEFAULT_DIRECTORY;
+    public static final String FILE_NAME;
+    public static final String FILE_EXTENSION;
+
     static {
 
         StringBuilder sb;
@@ -30,22 +34,22 @@ public class Settings {
         FILE_EXTENSION = ".bin";
     }
 
-    public static final String DEFAULT_DIRECTORY;
-    public static final String FILE_NAME;
-    public static final String FILE_EXTENSION;
+
     private String directory;
 
-    private boolean useMonitorAspectRatio = false;
-    private boolean vsyncEnabled = false;
-    private boolean resizable = true;
-    private boolean fullScreen = false;
-    private boolean muted = false;
+    private boolean useMonitorAspectRatio = false;  // use monitor aspect ratio?
+    private boolean vsyncEnabled = false;           // enable glfw internal v-sync?
+    private boolean resizable = true;               // resizable window?
+    private boolean fullScreen = false;             // fullScreen?
+    private boolean muted = false;                  // mute all audio?
 
-    private float target_AspectRatio = 16/9f;
-    private int target_ResolutionWidth = 1280;
+    private float target_AspectRatio = 16/9f;       //
+    private int target_ResolutionWidth = 1280;      // screenW
     private int target_ResolutionHeight = 720;
     private int target_fps = 60;
     private int target_ups = 30;
+    private int ppu_world = 1;
+    private int ppu_ui = 1;
 
     private float audio_master = 1f;
     private float audio_effects = 1f;
@@ -167,7 +171,7 @@ public class Settings {
         return settingsFile.exists();
     }
 
-    public void load() throws IOException {
+    private void load() throws IOException {
 
         File settingsFile = new File(directory + FILE_NAME + FILE_EXTENSION);
 
@@ -177,7 +181,9 @@ public class Settings {
 
             DBObject settings = database.findObject("settings");
 
-            boolean[] booleans = settings.findArray("booleans").boolData();
+            DBArray bools = settings.findArray("booleans");
+
+            boolean[] booleans = bools.boolData();
 
             useMonitorAspectRatio = booleans[0];
             vsyncEnabled = booleans[1];
