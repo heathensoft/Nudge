@@ -11,6 +11,9 @@ public abstract class Application {
     private Settings settings;
     private Timer timer;
 
+    public abstract void init();
+    public abstract Settings settings();
+
     // String title();
     // String windowTitle();
     // int versionMinor();

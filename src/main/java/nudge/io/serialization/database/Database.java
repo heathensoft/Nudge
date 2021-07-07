@@ -80,9 +80,8 @@ public class Database extends DBEntry {
 
         Database database;
         try { database = (Database) new Database().recreate(data);
-        } catch (ArrayIndexOutOfBoundsException e) {
-            e.printStackTrace();
-            throw new IOException("Serialization Error: Corrupted File");
+        } catch (ArrayIndexOutOfBoundsException | DataRecreationException e) {
+            throw new IOException("Serialization ERROR: Corrupted File. " + e.getMessage() , e);
         }
         return database;
     }

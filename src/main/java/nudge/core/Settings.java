@@ -17,9 +17,28 @@ import java.io.IOException;
 
 public class Settings {
 
-    public static final String DEFAULT_DIRECTORY;
-    public static final String FILE_NAME;
-    public static final String FILE_EXTENSION;
+
+    private final String KEY_BOOL           = "B";
+    private final String KEY_OBJ            = "O";
+
+    //private final String KEY_MUTED          = "Mu";
+    //private final String KEY_VSYNC          = "VS";
+    //private final String KEY_RESIZE         = "Rs";
+    //private final String KEY_FULL_SCREEN    = "Fs";
+    //private final String KEY_LIMIT_FPS      = "LFPS";
+    //private final String KEY_USE_MONITOR_AR = "MAR";
+
+    private final String KEY_ASPECT_RATIO   = "AR";
+    private final String KEY_SCREEN_WIDTH   = "SW";
+    private final String KEY_SCREEN_HEIGHT  = "SH";
+    private final String KEY_TARGET_FPS     = "TFPS";
+    private final String KEY_PPU_WORLD      = "PPUW";
+    private final String KEY_PPU_UI         = "PPUI";
+    private final String KEY_V_MASTER       = "VMa";
+    private final String KEY_V_EFFECTS      = "VEf";
+    private final String KEY_V_DIALOGUE     = "VDi";
+    private final String KEY_V_AMBIENCE     = "VAm";
+    private final String KEY_V_MUSIC        = "VMu";
 
     static {
 
@@ -34,175 +53,185 @@ public class Settings {
         FILE_EXTENSION = ".bin";
     }
 
+    public static final String DEFAULT_DIRECTORY;
+    public static final String FILE_NAME;
+    public static final String FILE_EXTENSION;
 
     private String directory;
 
-    private boolean useMonitorAspectRatio = false;  // use monitor aspect ratio?
-    private boolean vsyncEnabled = false;           // enable glfw internal v-sync?
-    private boolean resizable = true;               // resizable window?
-    private boolean fullScreen = false;             // fullScreen?
-    private boolean muted = false;                  // mute all audio?
+    // DISPLAY
+    private boolean vsync           = false;
+    private boolean resizable       = true;
+    private boolean fullScreen      = false;
+    private boolean useMonitorAR    = false;
+    private boolean limitFPS        = false;
 
-    private float target_AspectRatio = 16/9f;       //
-    private int target_ResolutionWidth = 1280;      // screenW
-    private int target_ResolutionHeight = 720;
-    private int target_fps = 60;
-    private int target_ups = 30;
-    private int ppu_world = 1;
-    private int ppu_ui = 1;
+    private float aspectRatio       = 16/9f;
+    private int screenWidth         = 1280;
+    private int screenHeight        = 720;
+    private int targetFPS           = 60;
+    private int PPU_World           = 1;
+    private int PPU_UI              = 1;
 
-    private float audio_master = 1f;
-    private float audio_effects = 1f;
-    private float audio_dialogue = 1f;
-    private float audio_ambient = 1f;
-    private float audio_music = 1f;
+    // AUDIO
+    private boolean muted           = true;
 
-
-    public Settings() {
-
-        this(true);
-    }
-
-    public Settings(boolean tryLoad) {
-
-        this(tryLoad,DEFAULT_DIRECTORY);
-
-    }
-
-    public Settings(boolean tryLoad, String directory) {
-
-        setDirectory(directory);
-
-        if (tryLoad) {
-            try { load();
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.out.println("Could not load: " + this.directory + FILE_NAME + FILE_EXTENSION);
-                System.out.println("Default application settings enabled");
-            }
-        }
+    private float volumeMaster      = 1f;
+    private float volumeEffects     = 1f;
+    private float volumeDialogue    = 1f;
+    private float volumeAmbience    = 1f;
+    private float volumeMusic       = 1f;
 
 
-    }
+    public Settings() {this(DEFAULT_DIRECTORY); }
 
+    public Settings(String directory) { setDirectory(directory); }
+
+
+    // todo: check if path is "valid" (legal chars)
     public void setDirectory(String path) {
-        String s = File.separator;
-        path = path.replace('/',s.charAt(0));
-        if (!path.endsWith(s)) {
-            directory = path.concat(s);
+        if (path != null) {
+            String s = File.separator;
+            path = path.replace('/',s.charAt(0));
+            if (!path.endsWith(s)) {
+                directory = path.concat(s);
+            }
+            else directory = path;
         }
-        else directory = path;
     }
 
-    public String getDirectory() {
-        return directory;
+    public String getDirectory() { return directory; }
+
+
+    public int targetFPS() { return targetFPS; }
+
+    public int screenWidth() { return screenWidth; }
+
+    public int screenHeight() { return screenHeight; }
+
+    public float aspectRatio() { return aspectRatio; }
+
+    public int pixelPerUnitWorld() { return PPU_World; }
+
+    public int pixelPerUnitUI() { return PPU_UI; }
+
+    public boolean MonitorAspectRaEnabled() { return useMonitorAR; }
+
+    public boolean vsyncEnabled() { return vsync; }
+
+    public boolean resizeEnabled() { return resizable; }
+
+    public boolean fullScreenEnabled() { return fullScreen; }
+
+    public boolean limitFPSEnabled() { return limitFPS; }
+
+
+    public void setTargetFPS(int value) {
+        targetFPS = value;
     }
 
-    public void setTarget_fps(int value) {
-        target_fps = value;
+    public void setScreenHeight(int h) {
+        screenHeight = h;
     }
 
-    public void setTarget_ups(int value) {
-        target_ups = value;
+    public void setScreenWidth(int w) {
+        screenWidth = w;
     }
 
-    public void setTarget_ResolutionHeight(int h) {
-        target_ResolutionHeight = h;
+    public void setAspectRatio(float w, float h) {
+        aspectRatio = w/h;
     }
 
-    public void setTarget_ResolutionWidth(int w) {
-        target_ResolutionWidth = w;
+    public void setPixelsPerUnitWorld (int ppu) { this.PPU_World = ppu; }
+
+    public void setPixelsPerUnitUI (int ppu) { this.PPU_UI = ppu; }
+
+    public void enableMonitorAspectRa(boolean b) { useMonitorAR = b; }
+
+    public void enableVsync(boolean b) { vsync = b; }
+
+    public void enableResize(boolean b) { resizable = b; }
+
+    public void enableFullScreen(boolean b) { fullScreen = b; }
+
+    public void enableFPSLimit(boolean b) { limitFPS = b; }
+
+
+    public float volumeMaster() {
+        return volumeMaster;
     }
 
-    public void setTarget_AspectRatio(float w, float h) {
-        target_AspectRatio = w/h;
+    public float volumeEffects() {
+        return volumeEffects;
     }
 
-    public float getAudio_master() {
-        return muted ? 0 : audio_master;
+    public float volumeAmbient() {
+        return volumeAmbience;
     }
 
-    public float getAudio_effects() {
-        return muted ? 0 : audio_effects;
+    public float volumeDialogue() {
+        return volumeDialogue;
     }
 
-    public float getAudio_ambient() {
-        return muted ? 0 : audio_ambient;
+    public float volumeMusic() {
+        return volumeMusic;
     }
 
-    public float getAudio_dialogue() {
-        return muted ? 0 : audio_dialogue;
-    }
+    public boolean audioEnabled() { return muted; }
 
-    public float getAudio_music() {
-        return muted ? 0 : audio_music;
-    }
 
-    public void setAudioVolumeMaster(float value) {
-        audio_master = U.clamp(value,0,1f);
-        audio_effects *= audio_master;
-        audio_effects *= audio_master;
-        audio_ambient *= audio_master;
-        audio_music *= audio_master;
-    }
+    public void setVolumeMaster(float value) { volumeMaster = U.clamp(value,0,1f); }
 
-    public void setAudioVolumeEffects(float value) {
-        audio_effects = U.clamp(value,0,1f);
-        audio_effects *= audio_master;
-    }
+    public void setVolumeEffects(float value) { volumeEffects = U.clamp(value,0,1f); }
 
-    public void setAudioVolumeDialogue(float value) {
-        audio_dialogue = U.clamp(value,0,1f);
-        audio_dialogue *= audio_master;
-    }
+    public void setVolumeDialogue(float value) { volumeDialogue = U.clamp(value,0,1f); }
 
-    public void setAudioVolumeAmbient(float value) {
-        audio_ambient = U.clamp(value,0,1f);
-        audio_ambient *= audio_master;
-    }
+    public void setVolumeAmbience(float value) { volumeAmbience = U.clamp(value,0,1f); }
 
-    public void setAudioVolumeMusic(float value) {
-        audio_music = U.clamp(value,0,1f);
-        audio_music *= audio_master;
-    }
+    public void setVolumeMusic(float value) { volumeMusic = U.clamp(value,0,1f); }
 
-    public boolean onDisk() {
-        File settingsFile = new File(directory + FILE_NAME + FILE_EXTENSION);
-        return settingsFile.exists();
-    }
+    public void enableAudio(boolean b) { muted = b; }
 
-    private void load() throws IOException {
+
+    public boolean onDisk() { return new File(directory + FILE_NAME + FILE_EXTENSION).exists(); }
+
+
+    // todo: rethink exception handling
+    public void load() throws IOException {
 
         File settingsFile = new File(directory + FILE_NAME + FILE_EXTENSION);
 
         if (settingsFile.exists()) {
 
             Database database = Database.deserializeFromFile(settingsFile);;
+            DBObject settings = database.findObject(KEY_OBJ);
 
-            DBObject settings = database.findObject("settings");
+            DBArray dbools = settings.findArray(KEY_BOOL);
+            boolean[] bools = dbools.boolData();
 
-            DBArray bools = settings.findArray("booleans");
+            useMonitorAR    = bools[0];
+            vsync           = bools[1];
+            resizable       = bools[2];
+            fullScreen      = bools[3];
+            muted           = bools[4];
+            limitFPS        = bools[5];
 
-            boolean[] booleans = bools.boolData();
+            aspectRatio     = settings.findField(KEY_ASPECT_RATIO).getFloat();
+            screenWidth     = settings.findField(KEY_SCREEN_WIDTH).getInt();
+            screenHeight    = settings.findField(KEY_SCREEN_HEIGHT).getInt();
+            targetFPS       = settings.findField(KEY_TARGET_FPS).getInt();
+            PPU_World       = settings.findField(KEY_PPU_WORLD).getInt();
+            PPU_UI          = settings.findField(KEY_PPU_UI).getInt();
 
-            useMonitorAspectRatio = booleans[0];
-            vsyncEnabled = booleans[1];
-            resizable = booleans[2];
-            fullScreen = booleans[3];
-            muted = booleans[4];
+            volumeMaster    = settings.findField(KEY_V_MASTER).getFloat();
+            volumeEffects   = settings.findField(KEY_V_EFFECTS).getFloat();
+            volumeDialogue  = settings.findField(KEY_V_DIALOGUE).getFloat();
+            volumeAmbience  = settings.findField(KEY_V_AMBIENCE).getFloat();
+            volumeMusic     = settings.findField(KEY_V_MUSIC).getFloat();
 
-            target_AspectRatio = settings.findField("aspectRatio").getFloat();
-            target_ResolutionWidth = settings.findField("resolutionWidth").getInt();
-            target_ResolutionHeight = settings.findField("resolutionHeight").getInt();
-            target_ups = settings.findField("ups").getInt();
-            target_fps = settings.findField("fps").getInt();
-
-            audio_master = settings.findField("audioMaster").getFloat();
-            audio_effects = settings.findField("audioEffects").getFloat();
-            audio_dialogue = settings.findField("audioDialogue").getFloat();
-            audio_ambient = settings.findField("audioAmbient").getFloat();
-            audio_music = settings.findField("audioMusic").getFloat();
         }
+        System.out.println("Could not load from: " + this.directory + FILE_NAME + FILE_EXTENSION);
+        System.out.println("\tNo such file..\n\tDefault Application Settings Enabled.");
     }
 
     public void save() {
@@ -216,37 +245,40 @@ public class Settings {
             }
         }
 
-        Database database = new Database("db");
-        DBObject settings = new DBObject("settings");
+        Database database = new Database("DB");
+        DBObject settings = new DBObject(KEY_OBJ);
 
-        DBArray booleans = new DBArray("booleans",new boolean[] {
+        DBArray booleans = new DBArray(KEY_BOOL,new boolean[] {
 
-                useMonitorAspectRatio,
-                vsyncEnabled,
+                useMonitorAR,
+                vsync,
                 resizable,
                 fullScreen,
-                muted
+                muted,
+                limitFPS
         });
 
         settings.add(booleans);
 
-        DBField aspectRatio = new DBField("aspectRatio",target_AspectRatio);
-        DBField resolutionWidth = new DBField("resolutionWidth",target_ResolutionWidth);
-        DBField resolutionHeight = new DBField("resolutionHeight",target_ResolutionHeight);
-        DBField ups = new DBField("ups",target_ups);
-        DBField fps = new DBField("fps",target_fps);
+        DBField aspectRatio         = new DBField(KEY_ASPECT_RATIO, this.aspectRatio);
+        DBField resolutionWidth     = new DBField(KEY_SCREEN_WIDTH, screenWidth);
+        DBField resolutionHeight    = new DBField(KEY_SCREEN_HEIGHT, screenHeight);
+        DBField ppuw                = new DBField(KEY_PPU_WORLD, PPU_World);
+        DBField ppui                = new DBField(KEY_PPU_UI, PPU_UI);
+        DBField fps                 = new DBField(KEY_TARGET_FPS, targetFPS);
 
         settings.add(aspectRatio);
         settings.add(resolutionWidth);
         settings.add(resolutionHeight);
-        settings.add(ups);
+        settings.add(ppuw);
+        settings.add(ppui);
         settings.add(fps);
 
-        DBField audioMaster = new DBField("audioMaster",audio_master);
-        DBField audioEffects = new DBField("audioEffects",audio_effects);
-        DBField audioDialogue = new DBField("audioDialogue",audio_dialogue);
-        DBField audioAmbient = new DBField("audioAmbient",audio_ambient);
-        DBField audioMusic = new DBField("audioMusic",audio_music);
+        DBField audioMaster         = new DBField(KEY_V_MASTER, volumeMaster);
+        DBField audioEffects        = new DBField(KEY_V_EFFECTS, volumeEffects);
+        DBField audioDialogue       = new DBField(KEY_V_DIALOGUE, volumeDialogue);
+        DBField audioAmbient        = new DBField(KEY_V_AMBIENCE, volumeAmbience);
+        DBField audioMusic          = new DBField(KEY_V_MUSIC, volumeMusic);
 
         settings.add(audioMaster);
         settings.add(audioEffects);
@@ -256,14 +288,11 @@ public class Settings {
 
         database.add(settings);
 
-        // todo: again, look into exceptions in the serialization packet
-
         try {
             database.serializeToFile(this.directory + FILE_NAME + FILE_EXTENSION);
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Failed to save the application settings. Could not read Database");
         }
-
     }
 }
