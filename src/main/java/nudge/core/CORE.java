@@ -2,20 +2,17 @@ package nudge.core;
 
 import nudge.core.input.KEYBOARD;
 import nudge.core.input.MOUSE;
-import nudge.core.view.VIEW;
+import nudge.core.view.Display;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.system.MemoryStack;
 
-import java.nio.IntBuffer;
+import java.util.Objects;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.GL_FALSE;
-import static org.lwjgl.opengl.GL11.GL_TRUE;
-import static org.lwjgl.system.MemoryStack.stackPush;
+import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 /**
@@ -26,13 +23,17 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public final class CORE {
 
+    // Single instance classes:
+
+    // Capital letter names for classes and methods in the context of the Nudge framework signify
+    // some relation to a global context: Mainly single instance global classes (like CORE, MOUSE, KEYBOARD)
+    // but also some critical static functions like CORE.EXIT();
+
     private static CORE instance;
-
     private Application app;
-
+    private Display display;
     private long window;
 
-    boolean initialized;
 
     private CORE() {}
 
@@ -57,26 +58,28 @@ public final class CORE {
 
         GLFWErrorCallback.createPrint(System.err).set();
 
-        if (!glfwInit()) throw new IllegalStateException("Unable to Initialize GLFW.");
+        // Initialize GLFW library
+        if (!glfwInit()) throw new IllegalStateException("Failed to Initialize GLFW.");
 
+        // App Configuration
         this.app = app;
+        app.configure(); // set additional settings and / or window hints
+        Settings config = app.settings(); // get the app configuration
 
-        app.configure(); // set additional settings and window hints
-
-        Settings config = app.settings(); // getting the apps configuration
-
+        // Hiding window while initializing
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, config.resizeEnabled() ? GL_TRUE : GL_FALSE);
 
-        int screenW = config.screenWidth();
-        int screenH = config.screenHeight();
+
+        glfwSwapInterval(config.vsyncEnabled() ? 1 : 0); // V-sync
+
+        // Create Window
         String title = app.title() + "(v." + app.versionMajor() + "." + app.versionMinor() + ")";
-
         long monitor = config.fullScreenEnabled() ?  glfwGetPrimaryMonitor() : NULL;
-        window = glfwCreateWindow(screenW, screenH, title, monitor, NULL);
+        window = glfwCreateWindow(config.screenWidth(), config.screenHeight(), title, monitor, NULL);
+        if (window == NULL) throw new IllegalStateException("Failed to create the window.");
 
-        if (window == NULL) throw new IllegalStateException("Failed to create the GLFW window.");
-
+        // Input Callbacks
         glfwSetCursorPosCallback(   window, MOUSE::mousePosCallback);
         glfwSetMouseButtonCallback( window, MOUSE::mouseButtonCallback);
         glfwSetScrollCallback(      window, MOUSE::mouseScrollCallback);
@@ -84,26 +87,41 @@ public final class CORE {
         glfwSetCharCallback(        window, KEYBOARD::charCallback);
 
         glfwMakeContextCurrent(window);
-        glfwSwapInterval(config.vsyncEnabled() ? 1 : 0);
-        glfwShowWindow(window);
 
-        GL.createCapabilities();
-
+        // Aspect Ratio.
         float aspectRatio = config.aspectRatio();
 
         if(config.monitorAspectRaEnabled()) {
             GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-            if (vidMode == null) throw new RuntimeException("Monitor Error");
+            if (vidMode == null) throw new RuntimeException("Failed to get primary monitor");
             int targetWidth = vidMode.width();
             int targetHeight = vidMode.height();
             aspectRatio = (float) targetWidth / (float) targetHeight;
         }
 
-        view().initialize(window,aspectRatio);
+        // About GL.createCapabilities():
+        // (http://forum.lwjgl.org/index.php?topic=6459.0)
 
+        // "In order for LWJGL to actually know about the OpenGL context and initialize itself using that context,
+        // we have to call GL.createCapabilities(). It is only after that call that we can call OpenGL functions
+        // via methods on those GLxx and extension classes living in the org.lwjgl.opengl package."
 
+        // it's not entirely clear to me. But before using certain functionality like calling ie. glfwShowWindow()
+        // below here, or glViewport() (inside Display's constructor, also below) or glGenTextures() inside our Texture class etc.
+        // we create an instance of our OPENGL context created above (glfwMakeContextCurrent(window)) through GL.createC..()
 
-        initialized = true;
+        GL.createCapabilities();
+
+        // Setting up our Display, with some window related callbacks
+        display = new Display(window,aspectRatio);
+
+        // Default blending. Change at anytime.
+        glEnable(GL_BLEND); // Enabling alfa-blend
+        // What blending function to use (very typical)
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+        // Finally
+        glfwShowWindow(window);
     }
 
     private void mainLoop() {
@@ -119,20 +137,24 @@ public final class CORE {
 
         // Terminate GLFW and free the error callback
         glfwTerminate();
-        glfwSetErrorCallback(null).free();
+        Objects.requireNonNull(glfwSetErrorCallback(null)).free();
 
 
     }
 
 
-    public Application app() {return app; }
+    // todo: How does this relate to our fps / ups timing system?
+    public void enableVsync(boolean b) { glfwSwapInterval(b ? 1 : 0); }
 
-    public VIEW view() { return VIEW.get(); }
+    public Application app() { return app; }
 
-    public MOUSE mouse() { return MOUSE.get(); }
+    public Display display() { return display; }
 
-    public KEYBOARD keyboard() { return KEYBOARD.get(); }
+    public MOUSE MOUSE() { return MOUSE.get(); }
 
+    public KEYBOARD KEYBOARD() { return KEYBOARD.get(); }
+
+    public static void EXIT() { glfwSetWindowShouldClose(get().window,true); }
 
 
 

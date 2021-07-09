@@ -1,13 +1,12 @@
 package nudge.core.input;
 
-import nudge.core.view.VIEW;
+import nudge.core.CORE;
 import org.joml.Vector2f;
 import org.joml.primitives.Rectanglef;
 
 import static org.lwjgl.glfw.GLFW.*;
 
 public final class MOUSE {
-
 
     // todo update mousePos when camera moves
 
@@ -36,7 +35,7 @@ public final class MOUSE {
 
     private double xPos, yPos, lastX, lastY;
 
-    // only one listener at a time. Can be changed at runtime
+    // Only one listener at a time. Can be changed at runtime. Really no reason to have more.
     private MouseListener listener = null;
     private static MOUSE instance;
 
@@ -69,7 +68,7 @@ public final class MOUSE {
         mouse.lastY = mouse.yPos;
 
         mouse.xPos = xPos;
-        mouse.yPos = VIEW.screenHeight() - yPos;
+        mouse.yPos = CORE.get().display().screenHeight() - yPos;
 
         MouseListener listener = mouse.listener;
 
@@ -91,7 +90,7 @@ public final class MOUSE {
 
             mouse.position.set(mouse.xPos,mouse.yPos);
             mouse.positionWorld.set(mouse.position);
-            Window.get().scene().camera().unProjectMouse(
+            CORE.get().app().camera().unProjectMouse(
                     mouse.positionWorld,
                     mouse.positionViewport);
             listener.hover_View(mouse.positionViewport);
