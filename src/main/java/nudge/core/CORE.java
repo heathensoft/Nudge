@@ -52,6 +52,7 @@ public final class CORE {
 
     private void initialize(final Application app) {
 
+
         System.out.println("LWJGL version:" + Version.getVersion());
         System.out.println("GLFW version:" + glfwGetVersionString());
         System.out.println("INITIALIZING GLFW WINDOW");
@@ -70,16 +71,15 @@ public final class CORE {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, config.resizeEnabled() ? GL_TRUE : GL_FALSE);
 
-
         glfwSwapInterval(config.vsyncEnabled() ? 1 : 0); // V-sync
 
-        // Create Window
+        // Create window
         String title = app.title() + "(v." + app.versionMajor() + "." + app.versionMinor() + ")";
         long monitor = config.fullScreenEnabled() ?  glfwGetPrimaryMonitor() : NULL;
         window = glfwCreateWindow(config.screenWidth(), config.screenHeight(), title, monitor, NULL);
-        if (window == NULL) throw new IllegalStateException("Failed to create the window.");
+        if (window == NULL) throw new IllegalStateException("Failed to create GLFW window.");
 
-        // Input Callbacks
+        // Input callbacks
         glfwSetCursorPosCallback(   window, MOUSE::mousePosCallback);
         glfwSetMouseButtonCallback( window, MOUSE::mouseButtonCallback);
         glfwSetScrollCallback(      window, MOUSE::mouseScrollCallback);
@@ -88,12 +88,12 @@ public final class CORE {
 
         glfwMakeContextCurrent(window);
 
-        // Aspect Ratio.
+        // Aspect ratio.
         float aspectRatio = config.aspectRatio();
 
         if(config.monitorAspectRaEnabled()) {
             GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-            if (vidMode == null) throw new RuntimeException("Failed to get primary monitor");
+            if (vidMode == null) throw new RuntimeException("Unable to access primary monitor");
             int targetWidth = vidMode.width();
             int targetHeight = vidMode.height();
             aspectRatio = (float) targetWidth / (float) targetHeight;
@@ -132,12 +132,14 @@ public final class CORE {
 
     private void terminate() {
 
+
+        System.out.println("TERMINATING GLFW WINDOW AND CONTEXT");
         glfwFreeCallbacks(window);
         glfwDestroyWindow(window);
-
         // Terminate GLFW and free the error callback
         glfwTerminate();
         Objects.requireNonNull(glfwSetErrorCallback(null)).free();
+        System.out.println("\tTERMINATED");
 
 
     }

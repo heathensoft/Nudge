@@ -1,5 +1,6 @@
 package nudge.core.view;
 
+import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
@@ -17,7 +18,7 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 
 public class Display {
 
-    private long window;
+    private final long window;
 
     private int screenWidth;
     private int screenHeight;
@@ -25,9 +26,9 @@ public class Display {
     private int viewportHeight;
     private int viewportX0;
     private int viewportY0;
-    private float aspectRatio;
     private float viewportWidthInv;
     private float viewportHeightInv;
+    private final float aspectRatio;
 
 
     private boolean minimized;
@@ -44,9 +45,16 @@ public class Display {
             screenWidth = pWidth.get();
             screenHeight = pHeight.get();
         }
-
         resizeCallback(window,screenWidth,screenHeight);
 
+        GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        if (vidMode == null) throw new RuntimeException("Failed to get primary monitor");
+
+        glfwSetWindowPos(
+                window, // Center the window
+                (vidMode.width() - screenWidth) / 2,
+                (vidMode.height() - screenHeight) / 2
+        );
         glfwSetWindowSizeCallback(window,this::resizeCallback);
         glfwSetWindowIconifyCallback(window,this::minimizeCallback);
     }
@@ -83,29 +91,17 @@ public class Display {
 
     public long window() { return window; }
 
-    public int screenWidth() {
-        return screenWidth;
-    }
+    public int screenWidth() { return screenWidth; }
 
-    public int screenHeight() {
-        return screenHeight;
-    }
+    public int screenHeight() { return screenHeight; }
 
-    public int viewportWidth() {
-        return viewportWidth;
-    }
+    public int viewportWidth() { return viewportWidth; }
 
-    public int viewportHeight() {
-        return viewportHeight;
-    }
+    public int viewportHeight() { return viewportHeight; }
 
-    public int viewportX0() {
-        return viewportX0;
-    }
+    public int viewportX0() { return viewportX0; }
 
-    public int viewportY0() {
-        return viewportY0;
-    }
+    public int viewportY0() { return viewportY0; }
 
     public float aspectRatio() { return aspectRatio; }
 
