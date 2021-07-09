@@ -1,13 +1,14 @@
 package nudge.core.input;
 
+import nudge.core.view.VIEW;
 import org.joml.Vector2f;
 import org.joml.primitives.Rectanglef;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class Mouse {
+public final class MOUSE {
 
-    /*
+
     // todo update mousePos when camera moves
 
     // https://www.glfw.org/docs/3.3/input_guide.html#input_mouse
@@ -37,10 +38,10 @@ public class Mouse {
 
     // only one listener at a time. Can be changed at runtime
     private MouseListener listener = null;
-    private static Mouse instance;
+    private static MOUSE instance;
 
 
-    private Mouse() {
+    private MOUSE() {
         this.xPos = 0.0;
         this.yPos = 0.0;
         this.lastX = 0.0;
@@ -53,22 +54,22 @@ public class Mouse {
         this.dragStart = new Vector2f();
     }
 
-    public static Mouse get() {
+    public static MOUSE get() {
         if (instance == null) {
-            instance = new Mouse();
+            instance = new MOUSE();
         }
         return instance;
     }
 
     public static void mousePosCallback(long window, double xPos, double yPos) {
 
-        Mouse mouse = get();
+        MOUSE mouse = get();
 
         mouse.lastX = mouse.xPos;
         mouse.lastY = mouse.yPos;
 
         mouse.xPos = xPos;
-        mouse.yPos = Window.height() - yPos;
+        mouse.yPos = VIEW.screenHeight() - yPos;
 
         MouseListener listener = mouse.listener;
 
@@ -156,7 +157,7 @@ public class Mouse {
 
     public static void mouseButtonCallback(long window, int button, int action, int mods) {
 
-        Mouse mouse = get();
+        MOUSE mouse = get();
         MouseListener listener = mouse.listener;
 
         if (action == GLFW_PRESS) {
@@ -218,7 +219,7 @@ public class Mouse {
     }
 
     public static void mouseScrollCallback(long window, double xOffset, double yOffset) {
-        Mouse mouse = get();
+        MOUSE mouse = get();
         if (mouse.listener != null) {
             if (yOffset == SCROLL_UP) {
                 mouse.listener.scrollUp();
@@ -261,7 +262,7 @@ public class Mouse {
     }
 
     public static boolean isDragging() {
-        Mouse mouse = get();
+        MOUSE mouse = get();
         return  mouse.draggingThisFrame[RIGHT_BUTTON] ||
                 mouse.draggingThisFrame[WHEEL_BUTTON] ||
                 mouse.draggingThisFrame[LEFT_BUTTON ];
@@ -278,5 +279,5 @@ public class Mouse {
         else return false;
     }
 
-     */
+
 }

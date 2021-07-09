@@ -7,22 +7,22 @@ import static org.lwjgl.glfw.GLFW.*;
  * 29/06/2021
  */
 
-public class Keyboard {
+public final class KEYBOARD {
 
-    private static Keyboard instance;
+    private static KEYBOARD instance;
 
     private final boolean[] keys = new boolean[GLFW_KEY_LAST];
 
     private KeyReader reader;
 
-    private Keyboard() {}
+    private KEYBOARD() {}
 
 
-    public static Keyboard get() {
+    public static KEYBOARD get() {
 
         if (instance == null)
 
-            instance = new Keyboard();
+            instance = new KEYBOARD();
 
         return instance;
     }
@@ -31,7 +31,7 @@ public class Keyboard {
 
         if (key == GLFW_KEY_UNKNOWN) return;
 
-        Keyboard keyboard = get();
+        KEYBOARD keyboard = get();
 
         if (action == GLFW_PRESS) {
 
@@ -71,13 +71,14 @@ public class Keyboard {
 
     public static boolean isPressed(int keyCode) {
 
-        Keyboard keyboard = Keyboard.get();
+        KEYBOARD keyboard = KEYBOARD.get();
 
         if (keyCode >= keyboard.keys.length) return false;
 
         return keyboard.keys[keyCode];
     }
 
+    // Make static
     public void setReader(KeyReader reader) {
 
         boolean thisReaderNull = this.reader == null;

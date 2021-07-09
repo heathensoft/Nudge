@@ -1,4 +1,4 @@
-package nudge.core;
+package nudge.core.view;
 
 import org.joml.Vector2f;
 import org.joml.primitives.Rectanglef;

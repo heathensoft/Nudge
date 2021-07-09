@@ -1,4 +1,4 @@
-package nudge.core;
+package nudge.core.view;
 
 import nudge.util.U;
 import org.joml.Matrix4f;
@@ -11,8 +11,6 @@ import java.util.List;
 
 public class Camera {
 
-
-    /*
     private final Rectanglef worldView;
     private final Matrix4f projectionMatrix;
     private final Matrix4f inverseProjection;
@@ -46,7 +44,7 @@ public class Camera {
     }
 
     public Camera(Vector2f position) {
-        this(position,Window.width(),Window.height());
+        this(position,VIEW.viewportWidth(),VIEW.viewportHeight());
     }
 
     public Camera(Vector2f position, float viewportW, float viewportH) {
@@ -118,20 +116,20 @@ public class Camera {
     }
 
     public void unProject(Vector2f vec) {
-        float x = vec.x - Window.viewportX();
-        float y = vec.y - Window.viewportY();
-        vec3Temp1.x = (2 * x) * Window.viewW_normalized() - 1;
-        vec3Temp1.y = (2 * y) * Window.viewH_normalized() - 1;
+        float x = vec.x - VIEW.viewportX();
+        float y = vec.y - VIEW.viewportY();
+        vec3Temp1.x = (2 * x) * VIEW.viewW_normalized() - 1;
+        vec3Temp1.y = (2 * y) * VIEW.viewH_normalized() - 1;
         vec3Temp1.z = 0; // try 1 if anything mysterious
         vec3Temp1.mulProject(inverseProjection).mulProject(inverseView);
         vec.set(vec3Temp1.x, vec3Temp1.y);
     }
 
     public void unProjectMouse(Vector2f world, Vector2f window) {
-        float x = world.x - Window.viewportX();
-        float y = world.y - Window.viewportY();
-        vec3Temp1.x = (2 * x) * Window.viewW_normalized() - 1;
-        vec3Temp1.y = (2 * y) * Window.viewH_normalized() - 1;
+        float x = world.x - VIEW.viewportX();
+        float y = world.y - VIEW.viewportY();
+        vec3Temp1.x = (2 * x) * VIEW.viewW_normalized() - 1;
+        vec3Temp1.y = (2 * y) * VIEW.viewH_normalized() - 1;
         vec3Temp1.z = 0; // try 1 if anything mysterious
         vec3Temp2.set(vec3Temp1);
         vec3Temp1.mulProject(inverseProjection).mulProject(inverseView);
@@ -267,5 +265,4 @@ public class Camera {
         return zoomCeil;
     }
 
-     */
 }
