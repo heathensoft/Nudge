@@ -1,24 +1,39 @@
 package nudge.core;
 
+import nudge.core.view.Camera;
+
 /**
  * @author Frederik Dahl
  * 05/07/2021
  */
 
 
-public abstract class Application {
+public interface Application {
 
-    private Settings settings;
-    private Timer timer;
 
-    public abstract void init();
-    public abstract Settings settings();
+    void configure();
 
-    // String title();
-    // String windowTitle();
-    // int versionMinor();
-    // int versionMajor();
-    // int runtime();
+    void create();
+
+    void handleInput();
+
+    void update(float dt);
+
+    void render();
+
+    void exit();
+
+    WinConfig settings();
+
+    Camera camera();
+
+    String title();
+
+    short versionMinor();
+
+    short versionMajor();
+
+    long runtime();
 
 
 

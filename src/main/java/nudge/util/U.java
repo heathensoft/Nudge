@@ -103,6 +103,37 @@ public class U {
         return compare(v1.x, v2.x, Float.MIN_VALUE) && compare(v1.y, v2.y, Float.MIN_VALUE);
     }
 
+    public static byte setFlag(byte flag, byte flags) {
+        return (byte) (flag | flags);
+    }
+
+    public static short setFlag(short flag, short flags) {
+        return (short) (flag | flags);
+    }
+
+    public static int setFlag(int flag, int flags) {
+        return (flag | flags);
+    }
+
+    public static long setFlag(long flag, long flags) {
+        return (flag | flags);
+    }
+
+    public static boolean flagIsSet(byte flag, byte flags) {
+        return (flag & flags) != 0;
+    }
+
+    public static boolean flagIsSet(short flag, short flags) {
+        return (flag & flags) != 0;
+    }
+
+    public static boolean flagIsSet(int flag, int flags) {
+        return (flag & flags) != 0;
+    }
+
+    public static boolean flagIsSet(long flag, long flags) {
+        return (flag & flags) != 0;
+    }
 
     public static float round(float x) {
         return Math.round(x);

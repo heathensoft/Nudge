@@ -15,7 +15,7 @@ import java.io.IOException;
  */
 
 
-public class Settings {
+public class ConfigExample implements WinConfig {
 
 
     private final String KEY_BOOL           = "B";
@@ -60,18 +60,16 @@ public class Settings {
     private String directory;
 
     // DISPLAY
-    private boolean vsync           = false;
-    private boolean resizable       = true;
-    private boolean fullScreen      = false;
-    private boolean useMonitorAR    = false;
-    private boolean limitFPS        = false;
+    private boolean vsync           = DEFAULT_VSYNC;
+    private boolean resizable       = DEFAULT_RESIZABLE;
+    private boolean fullScreen      = DEFAULT_FULL_SCREEN;
+    private boolean useMonitorAR    = DEFAULT_USE_MONITOR_AR;
+    private boolean limitFPS        = DEFAULT_LIMIT_FPS;
 
-    private float aspectRatio       = 16/9f;
-    private int screenWidth         = 1280;
-    private int screenHeight        = 720;
-    private int targetFPS           = 60;
-    private int PPU_World           = 1;
-    private int PPU_UI              = 1;
+    private float aspectRatio       = DEFAULT_ASPECT_RATIO;
+    private int screenWidth         = DEFAULT_SCREEN_WIDTH;
+    private int screenHeight        = DEFAULT_SCREEN_HEIGHT;
+    private int targetFPS           = DEFAULT_TARGET_FPS;
 
     // AUDIO
     private boolean muted           = true;
@@ -83,9 +81,9 @@ public class Settings {
     private float volumeMusic       = 1f;
 
 
-    public Settings() {this(DEFAULT_DIRECTORY); }
+    public ConfigExample() {this(DEFAULT_DIRECTORY); }
 
-    public Settings(String directory) { setDirectory(directory); }
+    public ConfigExample(String directory) { setDirectory(directory); }
 
 
     // todo: check if path is "valid" (legal chars)
@@ -102,49 +100,41 @@ public class Settings {
 
     public String getDirectory() { return directory; }
 
-
+    @Override
     public int targetFPS() { return targetFPS; }
 
+    @Override
     public int screenWidth() { return screenWidth; }
 
+    @Override
     public int screenHeight() { return screenHeight; }
 
+    @Override
     public float aspectRatio() { return aspectRatio; }
 
-    public int pixelPerUnitWorld() { return PPU_World; }
+    @Override
+    public boolean monitorAspectRaEnabled() { return useMonitorAR; }
 
-    public int pixelPerUnitUI() { return PPU_UI; }
-
-    public boolean MonitorAspectRaEnabled() { return useMonitorAR; }
-
+    @Override
     public boolean vsyncEnabled() { return vsync; }
 
+    @Override
     public boolean resizeEnabled() { return resizable; }
 
+    @Override
     public boolean fullScreenEnabled() { return fullScreen; }
 
+    @Override
     public boolean limitFPSEnabled() { return limitFPS; }
 
 
-    public void setTargetFPS(int value) {
-        targetFPS = value;
-    }
+    public void setTargetFPS(int value) { targetFPS = value; }
 
-    public void setScreenHeight(int h) {
-        screenHeight = h;
-    }
+    public void setScreenHeight(int h) { screenHeight = h; }
 
-    public void setScreenWidth(int w) {
-        screenWidth = w;
-    }
+    public void setScreenWidth(int w) { screenWidth = w; }
 
-    public void setAspectRatio(float w, float h) {
-        aspectRatio = w/h;
-    }
-
-    public void setPixelsPerUnitWorld (int ppu) { this.PPU_World = ppu; }
-
-    public void setPixelsPerUnitUI (int ppu) { this.PPU_UI = ppu; }
+    public void setAspectRatio(float w, float h) { aspectRatio = w/h; }
 
     public void enableMonitorAspectRa(boolean b) { useMonitorAR = b; }
 
@@ -157,25 +147,15 @@ public class Settings {
     public void enableFPSLimit(boolean b) { limitFPS = b; }
 
 
-    public float volumeMaster() {
-        return volumeMaster;
-    }
+    public float volumeMaster() { return volumeMaster; }
 
-    public float volumeEffects() {
-        return volumeEffects;
-    }
+    public float volumeEffects() { return volumeEffects; }
 
-    public float volumeAmbient() {
-        return volumeAmbience;
-    }
+    public float volumeAmbient() { return volumeAmbience; }
 
-    public float volumeDialogue() {
-        return volumeDialogue;
-    }
+    public float volumeDialogue() { return volumeDialogue; }
 
-    public float volumeMusic() {
-        return volumeMusic;
-    }
+    public float volumeMusic() { return volumeMusic; }
 
     public boolean audioEnabled() { return muted; }
 
@@ -203,7 +183,7 @@ public class Settings {
 
         if (settingsFile.exists()) {
 
-            Database database = Database.deserializeFromFile(settingsFile);;
+            Database database = Database.deserializeFromFile(settingsFile);
             DBObject settings = database.findObject(KEY_OBJ);
 
             DBArray dbools = settings.findArray(KEY_BOOL);
@@ -220,8 +200,6 @@ public class Settings {
             screenWidth     = settings.findField(KEY_SCREEN_WIDTH).getInt();
             screenHeight    = settings.findField(KEY_SCREEN_HEIGHT).getInt();
             targetFPS       = settings.findField(KEY_TARGET_FPS).getInt();
-            PPU_World       = settings.findField(KEY_PPU_WORLD).getInt();
-            PPU_UI          = settings.findField(KEY_PPU_UI).getInt();
 
             volumeMaster    = settings.findField(KEY_V_MASTER).getFloat();
             volumeEffects   = settings.findField(KEY_V_EFFECTS).getFloat();
@@ -260,25 +238,21 @@ public class Settings {
 
         settings.add(booleans);
 
-        DBField aspectRatio         = new DBField(KEY_ASPECT_RATIO, this.aspectRatio);
-        DBField resolutionWidth     = new DBField(KEY_SCREEN_WIDTH, screenWidth);
-        DBField resolutionHeight    = new DBField(KEY_SCREEN_HEIGHT, screenHeight);
-        DBField ppuw                = new DBField(KEY_PPU_WORLD, PPU_World);
-        DBField ppui                = new DBField(KEY_PPU_UI, PPU_UI);
-        DBField fps                 = new DBField(KEY_TARGET_FPS, targetFPS);
+        DBField aspectR          = new DBField(KEY_ASPECT_RATIO, aspectRatio);
+        DBField width            = new DBField(KEY_SCREEN_WIDTH, screenWidth);
+        DBField height           = new DBField(KEY_SCREEN_HEIGHT, screenHeight);
+        DBField fps              = new DBField(KEY_TARGET_FPS, targetFPS);
 
-        settings.add(aspectRatio);
-        settings.add(resolutionWidth);
-        settings.add(resolutionHeight);
-        settings.add(ppuw);
-        settings.add(ppui);
+        DBField audioMaster      = new DBField(KEY_V_MASTER, volumeMaster);
+        DBField audioEffects     = new DBField(KEY_V_EFFECTS, volumeEffects);
+        DBField audioDialogue    = new DBField(KEY_V_DIALOGUE, volumeDialogue);
+        DBField audioAmbient     = new DBField(KEY_V_AMBIENCE, volumeAmbience);
+        DBField audioMusic       = new DBField(KEY_V_MUSIC, volumeMusic);
+
+        settings.add(aspectR);
+        settings.add(width);
+        settings.add(height);
         settings.add(fps);
-
-        DBField audioMaster         = new DBField(KEY_V_MASTER, volumeMaster);
-        DBField audioEffects        = new DBField(KEY_V_EFFECTS, volumeEffects);
-        DBField audioDialogue       = new DBField(KEY_V_DIALOGUE, volumeDialogue);
-        DBField audioAmbient        = new DBField(KEY_V_AMBIENCE, volumeAmbience);
-        DBField audioMusic          = new DBField(KEY_V_MUSIC, volumeMusic);
 
         settings.add(audioMaster);
         settings.add(audioEffects);

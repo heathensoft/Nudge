@@ -4,6 +4,11 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 
+/**
+ * @author Frederik Dahl
+ * XX/XX/2021
+ */
+
 public class Serializer {
 
 
