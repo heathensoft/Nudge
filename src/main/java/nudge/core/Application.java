@@ -23,7 +23,7 @@ public interface Application {
 
     void exit();
 
-    Settings settings();
+    WinConfig settings();
 
     Camera camera();
 

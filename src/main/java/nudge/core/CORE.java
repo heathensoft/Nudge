@@ -26,8 +26,8 @@ public final class CORE {
     // Single instance classes:
 
     // Capital letter names for classes and methods in the context of the Nudge framework signify
-    // some relation to a global context: Mainly single instance global classes (like CORE, MOUSE, KEYBOARD)
-    // but also some critical static functions like CORE.EXIT();
+    // some relation to a global context: mainly single instance global classes (like CORE, MOUSE and KEYBOARD)
+    // but also for some critical static functions like CORE.EXIT();
 
     private static CORE instance;
     private Application app;
@@ -52,10 +52,23 @@ public final class CORE {
 
     private void initialize(final Application app) {
 
+        String platform = System.getProperty("os.name") + ", " + System.getProperty("os.arch") + " Platform.";
+        int numProcessors = Runtime.getRuntime().availableProcessors();
+        int JREMemoryMb = (int)(Runtime.getRuntime().maxMemory() / 1000000L);
+        String jre = System.getProperty("java.version");
 
-        System.out.println("LWJGL version:" + Version.getVersion());
-        System.out.println("GLFW version:" + glfwGetVersionString());
-        System.out.println("INITIALIZING GLFW WINDOW");
+        System.out.println("\nWelcome!\n");
+        System.out.println("SYSTEM INFO\n");
+
+        System.out.println("---Running on: " + platform);
+        System.out.println("---jre: " + jre);
+        System.out.println("---Available processors: " + numProcessors);
+        System.out.println("---Reserved memory: " + JREMemoryMb + " Mb");
+
+        System.out.println("---LWJGL version: " + Version.getVersion());
+        System.out.println("---GLFW version: " + glfwGetVersionString());
+
+        System.out.println("\nINITIALIZING GLFW WINDOW");
 
         GLFWErrorCallback.createPrint(System.err).set();
 
@@ -65,7 +78,7 @@ public final class CORE {
         // App Configuration
         this.app = app;
         app.configure(); // set additional settings and / or window hints
-        Settings config = app.settings(); // get the app configuration
+        WinConfig config = app.settings(); // get the app configuration
 
         // Hiding window while initializing
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
@@ -133,7 +146,7 @@ public final class CORE {
     private void terminate() {
 
 
-        System.out.println("TERMINATING GLFW WINDOW AND CONTEXT");
+        System.out.println("\nTERMINATING GLFW WINDOW AND CONTEXT");
         glfwFreeCallbacks(window);
         glfwDestroyWindow(window);
         // Terminate GLFW and free the error callback

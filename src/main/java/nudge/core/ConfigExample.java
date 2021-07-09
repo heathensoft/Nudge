@@ -15,7 +15,7 @@ import java.io.IOException;
  */
 
 
-public class GameSettings implements Settings{
+public class ConfigExample implements WinConfig {
 
 
     private final String KEY_BOOL           = "B";
@@ -70,8 +70,6 @@ public class GameSettings implements Settings{
     private int screenWidth         = DEFAULT_SCREEN_WIDTH;
     private int screenHeight        = DEFAULT_SCREEN_HEIGHT;
     private int targetFPS           = DEFAULT_TARGET_FPS;
-    private int PPU_World           = DEFAULT_PPU_WORLD;
-    private int PPU_UI              = DEFAULT_PPU_UI;
 
     // AUDIO
     private boolean muted           = true;
@@ -83,9 +81,9 @@ public class GameSettings implements Settings{
     private float volumeMusic       = 1f;
 
 
-    public GameSettings() {this(DEFAULT_DIRECTORY); }
+    public ConfigExample() {this(DEFAULT_DIRECTORY); }
 
-    public GameSettings(String directory) { setDirectory(directory); }
+    public ConfigExample(String directory) { setDirectory(directory); }
 
 
     // todo: check if path is "valid" (legal chars)
@@ -115,12 +113,6 @@ public class GameSettings implements Settings{
     public float aspectRatio() { return aspectRatio; }
 
     @Override
-    public int pixelPerUnitWorld() { return PPU_World; }
-
-    @Override
-    public int pixelPerUnitUI() { return PPU_UI; }
-
-    @Override
     public boolean monitorAspectRaEnabled() { return useMonitorAR; }
 
     @Override
@@ -143,10 +135,6 @@ public class GameSettings implements Settings{
     public void setScreenWidth(int w) { screenWidth = w; }
 
     public void setAspectRatio(float w, float h) { aspectRatio = w/h; }
-
-    public void setPixelsPerUnitWorld (int ppu) { this.PPU_World = ppu; }
-
-    public void setPixelsPerUnitUI (int ppu) { this.PPU_UI = ppu; }
 
     public void enableMonitorAspectRa(boolean b) { useMonitorAR = b; }
 
@@ -195,7 +183,7 @@ public class GameSettings implements Settings{
 
         if (settingsFile.exists()) {
 
-            Database database = Database.deserializeFromFile(settingsFile);;
+            Database database = Database.deserializeFromFile(settingsFile);
             DBObject settings = database.findObject(KEY_OBJ);
 
             DBArray dbools = settings.findArray(KEY_BOOL);
@@ -212,8 +200,6 @@ public class GameSettings implements Settings{
             screenWidth     = settings.findField(KEY_SCREEN_WIDTH).getInt();
             screenHeight    = settings.findField(KEY_SCREEN_HEIGHT).getInt();
             targetFPS       = settings.findField(KEY_TARGET_FPS).getInt();
-            PPU_World       = settings.findField(KEY_PPU_WORLD).getInt();
-            PPU_UI          = settings.findField(KEY_PPU_UI).getInt();
 
             volumeMaster    = settings.findField(KEY_V_MASTER).getFloat();
             volumeEffects   = settings.findField(KEY_V_EFFECTS).getFloat();
@@ -255,8 +241,6 @@ public class GameSettings implements Settings{
         DBField aspectR          = new DBField(KEY_ASPECT_RATIO, aspectRatio);
         DBField width            = new DBField(KEY_SCREEN_WIDTH, screenWidth);
         DBField height           = new DBField(KEY_SCREEN_HEIGHT, screenHeight);
-        DBField ppuw             = new DBField(KEY_PPU_WORLD, PPU_World);
-        DBField ppui             = new DBField(KEY_PPU_UI, PPU_UI);
         DBField fps              = new DBField(KEY_TARGET_FPS, targetFPS);
 
         DBField audioMaster      = new DBField(KEY_V_MASTER, volumeMaster);
@@ -268,8 +252,6 @@ public class GameSettings implements Settings{
         settings.add(aspectR);
         settings.add(width);
         settings.add(height);
-        settings.add(ppuw);
-        settings.add(ppui);
         settings.add(fps);
 
         settings.add(audioMaster);
