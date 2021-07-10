@@ -9,7 +9,7 @@
 <p align="center">
   <h2 align="center">NUDGE</h2>
   <p align="center">
-    Nudge is a 2D Java game development framework
+    2D game development framework for Java
     <br />
     <a href=""><strong>Explore the docs »</strong></a><br>
     <a href="https://github.com/fre-dahl/Nudge/issues">Report Bug</a>
@@ -20,10 +20,11 @@
 ## Table of Contents
 
 * [Features](#features)
-    * [Built With](#built-with)
-
 * [About](#about)
-* [Getting Started](#getting-started)
+  * [Introduction](#about)
+  * [Built With](#built-with)
+* [API Overview](#API-Overview)
+* [Getting started](#Getting-started)
     * [Prerequisites](#prerequisites)
     * [Project Setup](#project-setup)
     * [Documentation](#documentation)
@@ -33,7 +34,15 @@
 
 ## Features
 
-* Modern OpenGL through the LWJGL 3 library for fast GPU rendering.
+Modern [OpenGL](https://www.opengl.org/) through the [LWJGL 3](https://www.lwjgl.org/) library for fast GPU rendering.
+
+* [2D graphics](#2d-graphics) ([OpenGL](https://www.opengl.org/))
+* [Lifecycle management](#Lifecycle-management)
+* [Entity component system](#Entity-component-system)
+* [Lightweight physics](#Lightweight-physics)
+* [Window and Input](#Window-and-input) ([GLFW](https://www.glfw.org/))
+* [Serialization and networking](#Serialization-and-networking)
+* [SteamWorks API integration](#SteamWorks-API-integration)
 
 ## About
 
@@ -43,12 +52,30 @@ and it's development to be publicly available for anyone interested in building
 a Game / Game Engine from scratch in Java (Hence the name). Feel free to browse and / or
 use any part of the framework.
 
-Nudge is meant to be completed. I's development in meant to end in some predefined final state.
-Meaning, it will have support for some core basic features, and hopefully support them well.
+The Nudge framework intends to be completed and Its development will end in some final state.
+It will support some predefined core features, and hopefully support them well. I.e. Keeping it simple!
 
-Specifically:
 
-* ####2D rendering using OpenGL
+While Nudge can be used as a template for 2D games in general, it is designed with some specific
+use-cases in mind:
+
+* Top down
+* Low resolution
+* Lots of entities
+* Calculation heavy
+* Procedural content
+
+Think RTS or Simulation games! 
+
+## API Overview
+
+Broad overview of the intended scope of the framework. Further details and documentation will be included
+somewhere along the line of development! 
+
+<span style="color:lightgreen">Intended API</span>
+
+#### 2D graphics
+
   * Orthographic camera
     * Easy to set up
     * culling
@@ -68,39 +95,54 @@ Specifically:
   * Animation
     * States
   
-* ####Lightweight physics system
+#### Lifecycle management
+
+* GameStates 
+
+#### Entity component system
+
+#### Lightweight physics
+
   * Collision handling
     * Soft (Push pull "springs")
     * Hard (AABB)
-    * QuadTree
+    * QuadTree impl.
+    
   
-* ####Entity Component System
+#### Window and input
 
-* ####Game State Management
+* Mouse
+* Keyboard
+* GamePad
+* Listeners
+* Window handling
 
-* ####Serialization and Networking
+
+#### Serialization and networking
+
   * Represent anything as compact binary
   * UDP network transmission protocol
   * Multi-threaded networking
   * Client / Server
-  
 
-* ####SteamWorks API integration
+<span style="color:darkorange">Not Core</span>
 
-* ####Tile maps
-  * Runtime procedural generation
+#### SteamWorks API integration
+
+#### Tile maps
+
   * Low memory footprint
-  * Auto-tiling (8-Bit bit-masking)
+  * Runtime procedural generation
+  * Runtime Auto-tiling (8-Bit bit-masking)
 
-Nudge will not support:
+<span style="color:darkorange">Outside of scope</span>
 
-* Networking security protocols
-
-
-While Nudge can be used as template for 2D games in general, it is designed with some specific
-game genres / concepts in mind. Low resolution, CPU demanding, Top down, RTS, Rogue-like, procedural generation.
-
-
+* Mobile
+* 3D graphics
+* 3D perspective
+* Multiple monitors
+* Network security protocols
+* Simulating real world physics
 
 
 ## Prerequisites
@@ -110,10 +152,32 @@ game genres / concepts in mind. Low resolution, CPU demanding, Top down, RTS, Ro
 
 
 ### Built With
-* [LWJGL 3](https://www.lwjgl.org/)
+
+#### [LWJGL 3](https://www.lwjgl.org/)
+Java library that enables cross-platform access to popular native APIs useful in the development of graphics
+
+#### [OpenGL](https://www.opengl.org/)
+Widely used and supported 2D and 3D graphics API
+
+#### [GLFW](https://www.glfw.org/)
+Open Source, multi-platform library for OpenGL, OpenGL ES and Vulkan development on the desktop. It provides a simple API for creating windows, contexts and surfaces, receiving input and events.
+
+
+
+#### [stb_image](https://github.com/nothings/stb)
+Image loading library with support for multiple image formats and color channels
+
+
+#### [JOML](https://joml-ci.github.io/JOML/)
+A Java math library for OpenGL rendering calculations
+
 
 ### License
 Copyright (c) 2021 MIT License
 
+Consider crediting the author!
+
 ### Contact
 (add contact info)
+
+Keep on keeping on!
