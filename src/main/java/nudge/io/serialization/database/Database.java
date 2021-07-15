@@ -8,10 +8,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Consumer;
 
 import static nudge.io.serialization.Serializer.*;
 
@@ -20,7 +18,7 @@ import static nudge.io.serialization.Serializer.*;
  * XX/XX/2021
  */
 
-public class Database extends DBEntry {
+public class Database extends DBEntry implements Iterable<DBObject>{
 
     // todo: Fix old Exception handling
 
@@ -160,5 +158,19 @@ public class Database extends DBEntry {
         jsonFormat(builder,1, false,false);
         builder.end();
         return builder.toString();
+    }
+    
+    @Override
+    public Iterator<DBObject> iterator() {
+        if (objectMap != null) {
+            return objectMap.values().iterator();
+        }
+        else return objects.iterator();
+        
+    }
+    
+    @Override
+    public void forEach(Consumer<? super DBObject> action) {
+        Iterable.super.forEach(action);
     }
 }

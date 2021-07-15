@@ -15,7 +15,7 @@ import static nudge.io.serialization.Serializer.*;
  * XX/XX/2021
  */
 
-public class DBObject extends DBEntry {
+public class DBObject extends DBEntry{
 
     private static final byte CONTAINER_TYPE = DBEntry.OBJECT;
 

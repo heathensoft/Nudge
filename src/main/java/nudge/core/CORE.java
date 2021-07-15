@@ -78,7 +78,7 @@ public final class CORE {
         // App Configuration
         this.app = app;
         app.configure(); // set additional settings and / or window hints
-        WinConfig config = app.settings(); // get the app configuration
+        Config config = app.settings(); // get the app configuration
 
         // Hiding window while initializing
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
@@ -153,7 +153,6 @@ public final class CORE {
         glfwTerminate();
         Objects.requireNonNull(glfwSetErrorCallback(null)).free();
         System.out.println("\tTERMINATED");
-
 
     }
 
