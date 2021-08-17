@@ -60,8 +60,7 @@ public class Display {
     }
 
     private void resizeCallback(long glfwWindow, int screenWidth, int screenHeight) {
-
-        glfwSetWindowSize(glfwWindow, screenWidth, screenHeight);
+        
         // Figure out the largest area that fits this target aspect ratio
         int aspectWidth = screenWidth;
         int aspectHeight = (int)((float)aspectWidth / aspectRatio);
@@ -110,4 +109,6 @@ public class Display {
     public float viewportHeightInv() { return viewportHeightInv; }
 
     public boolean isMinimized() { return minimized; }
+    
+    
 }

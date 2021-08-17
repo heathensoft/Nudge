@@ -21,6 +21,8 @@ abstract class Setting {
     protected Object current;
     protected Object candidate;
     
+    
+    
     public Setting(String label, Object defaultValue) {
         this.defaultValue = defaultValue;
         this.candidate = defaultValue;

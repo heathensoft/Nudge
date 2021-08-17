@@ -6,7 +6,7 @@ package nudge.core.settings;
  */
 
 
-public abstract class GSettings extends Settings implements Config {
+public abstract class GameSettings extends Settings implements Config {
     
     public static final String WINDOW_WIDTH     = "WiWi";
     public static final String WINDOW_HEIGHT    = "WiHe";
@@ -29,7 +29,7 @@ public abstract class GSettings extends Settings implements Config {
     public static final String AUDIO_ENABLED    = "AuEn";
     
     
-    public <T extends Config> GSettings(T config) {
+    public <T extends Config> GameSettings(T config) {
         
         put(new SettInt(WINDOW_WIDTH, config.windowWidth(),0,Integer.MAX_VALUE));
         put(new SettInt(WINDOW_HEIGHT, config.windowHeight(),0,Integer.MAX_VALUE));
@@ -52,7 +52,7 @@ public abstract class GSettings extends Settings implements Config {
         put(new SettBool(AUDIO_ENABLED,config.audioEnabled()));
     }
     
-    public GSettings() {
+    public GameSettings() {
         
         put(new SettInt(WINDOW_WIDTH, Config.super.windowWidth(),0,Integer.MAX_VALUE));
         put(new SettInt(WINDOW_HEIGHT, Config.super.windowHeight(),0,Integer.MAX_VALUE));

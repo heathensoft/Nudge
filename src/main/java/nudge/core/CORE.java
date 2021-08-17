@@ -1,7 +1,7 @@
 package nudge.core;
 
-import nudge.core.input.KEYBOARD;
-import nudge.core.input.MOUSE;
+import nudge.core.input.Keyboard;
+import nudge.core.input.Mouse;
 import nudge.core.view.Display;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -22,53 +22,41 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 
 public final class CORE {
-
-    // Single instance classes:
-
-    // Capital letter names for classes and methods in the context of the Nudge framework signify
-    // some relation to a global context: mainly single instance global classes (like CORE, MOUSE and KEYBOARD)
-    // but also for some critical static functions like CORE.EXIT();
-
+    
     private static CORE instance;
-    private Application app;
-    private Display display;
+    
+    public static final long MAIN_THREAD_ID = Thread.currentThread().getId();
+    
+    public Application app;
+    public Display display; // Window rather
+    public Keyboard keyboard;
+    public Mouse mouse;
+    
     private long window;
 
 
-    private CORE() {}
+    private CORE() { }
+    
 
-
-    public static CORE get() {
-        if (instance == null)
-            instance = new CORE();
-        return instance;
-    }
-
-    public void run(final Application app) {
-        initialize(app);
-        mainLoop();
-        terminate();
+    public void start(final Application app) {
+        
+        try {
+            initialize(app);
+            run();
+        }
+        finally {
+            terminate();
+        }
+        
     }
 
     private void initialize(final Application app) {
-
-        String platform = System.getProperty("os.name") + ", " + System.getProperty("os.arch") + " Platform.";
-        int numProcessors = Runtime.getRuntime().availableProcessors();
-        int JREMemoryMb = (int)(Runtime.getRuntime().maxMemory() / 1000000L);
-        String jre = System.getProperty("java.version");
-
-        System.out.println("\nWelcome!\n");
-        System.out.println("SYSTEM INFO\n");
-
-        System.out.println("---Running on: " + platform);
-        System.out.println("---jre: " + jre);
-        System.out.println("---Available processors: " + numProcessors);
-        System.out.println("---Reserved memory: " + JREMemoryMb + " Mb");
-
-        System.out.println("---LWJGL version: " + Version.getVersion());
-        System.out.println("---GLFW version: " + glfwGetVersionString());
-
+        
+        printSystemInfo();
         System.out.println("\nINITIALIZING GLFW WINDOW");
+        
+        mouse = new Mouse();
+        keyboard = new Keyboard();
 
         GLFWErrorCallback.createPrint(System.err).set();
 
@@ -93,11 +81,11 @@ public final class CORE {
         if (window == NULL) throw new IllegalStateException("Failed to create GLFW window.");
 
         // Input callbacks
-        glfwSetCursorPosCallback(   window, MOUSE::mousePosCallback);
-        glfwSetMouseButtonCallback( window, MOUSE::mouseButtonCallback);
-        glfwSetScrollCallback(      window, MOUSE::mouseScrollCallback);
-        glfwSetKeyCallback(         window, KEYBOARD::keyCallback);
-        glfwSetCharCallback(        window, KEYBOARD::charCallback);
+        glfwSetCursorPosCallback(   window, mouse.cursorPositionCallback());
+        glfwSetMouseButtonCallback( window, mouse.mouseButtonCallback());
+        glfwSetScrollCallback(      window, mouse.scrollCallback());
+        glfwSetKeyCallback(         window, keyboard.getKeyCallback());
+        glfwSetCharCallback(        window, keyboard.getCharCallback());
 
         glfwMakeContextCurrent(window);
 
@@ -137,15 +125,13 @@ public final class CORE {
         glfwShowWindow(window);
     }
 
-    private void mainLoop() {
-
-
-
+    private void run() {
+    
+    
     }
 
     private void terminate() {
-
-
+        
         System.out.println("\nTERMINATING GLFW WINDOW AND CONTEXT");
         glfwFreeCallbacks(window);
         glfwDestroyWindow(window);
@@ -155,21 +141,33 @@ public final class CORE {
         System.out.println("\tTERMINATED");
 
     }
-
-
-    // todo: How does this relate to our fps / ups timing system?
-    public void enableVsync(boolean b) { glfwSwapInterval(b ? 1 : 0); }
-
-    public Application app() { return app; }
-
-    public Display display() { return display; }
-
-    public MOUSE MOUSE() { return MOUSE.get(); }
-
-    public KEYBOARD KEYBOARD() { return KEYBOARD.get(); }
-
+    
+    private void printSystemInfo() {
+    
+        String platform = System.getProperty("os.name") + ", " + System.getProperty("os.arch") + " Platform.";
+        int numProcessors = Runtime.getRuntime().availableProcessors();
+        int JREMemoryMb = (int)(Runtime.getRuntime().maxMemory() / 1000000L);
+        String jre = System.getProperty("java.version");
+    
+        System.out.println("\nWelcome!\n");
+        System.out.println("SYSTEM INFO\n");
+    
+        System.out.println("---Running on: " + platform);
+        System.out.println("---jre: " + jre);
+        System.out.println("---Available processors: " + numProcessors);
+        System.out.println("---Reserved memory: " + JREMemoryMb + " Mb");
+    
+        System.out.println("---LWJGL version: " + Version.getVersion());
+        System.out.println("---GLFW version: " + glfwGetVersionString());
+        
+    }
+    
     public static void EXIT() { glfwSetWindowShouldClose(get().window,true); }
-
-
+    
+    public static CORE get() { return instance == null ? instance = new CORE() : instance; }
+    
+    public static boolean isMainThread(long threadID) {
+        return threadID == CORE.MAIN_THREAD_ID;
+    }
 
 }
