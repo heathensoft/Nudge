@@ -5,8 +5,6 @@ import nudge.core.input.Keyboard;
 import nudge.core.input.Mouse;
 import org.lwjgl.Version;
 
-import java.util.Objects;
-
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 
@@ -23,7 +21,7 @@ public final class CORE {
     private static CORE instance;
     
     // Access any statically through get()
-    public Window window;
+    public IWindow window;
     public Application app;
     public Mouse mouse;
     public Keyboard keyboard;
@@ -57,7 +55,7 @@ public final class CORE {
         app = application;
         mouse = new Mouse();
         keyboard = new Keyboard();
-        window = new NudgeWindow();
+        window = new Window();
         
         window.initialize(application.config());
         app.initialize();
@@ -69,11 +67,13 @@ public final class CORE {
         
         window.makeContextCurrent();
         window.createCapabilities();
+        window.toggleVsync(window.vsyncEnabled());
+        window.setVisible(true);
     
         float beginTime = (float) glfwGetTime();
         float endTime;
         fps = 0.0f;
-        dt = 0.0f;
+        dt  = 0.0f;
         
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -98,13 +98,11 @@ public final class CORE {
             beginTime = endTime;
             fps = 1/dt;
         }
-    
     }
     
     private void terminate() {
         app.exit();
         window.close();
-        Objects.requireNonNull(glfwSetErrorCallback(null)).free();
     }
     
     private void printSystemInfo() {

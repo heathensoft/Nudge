@@ -11,6 +11,7 @@ public interface LaunchConfig {
     default int desiredResolutionWidth() { return 1280; }
     default int desiredResolutionHeight() { return 720; }
     default boolean verticalSynchronization() { return true; }
+    default boolean lockAspectRatio() { return true; }
     default boolean resizableWindow() { return false; }
     default boolean windowedMode() { return true; }
     default float volumeMaster() { return 1f; }
