@@ -10,9 +10,7 @@ import org.joml.primitives.Rectanglef;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Mouse {
-
-    // todo update mousePos when camera moves
-
+    
     // https://www.glfw.org/docs/3.3/input_guide.html#input_mouse
 
     private static final int NUM_BUTTONS = 3;
@@ -61,6 +59,11 @@ public class Mouse {
     }
     
     public void step() {
+        
+        // Todo: Find out here if the camera has moved.
+        //  if it has, we need to unProject the mouse, even if the mouse has not moved..
+        //  to update our world coordinates, and notify our listener.
+        //  this is not of immediate concern.
         
         if (scrollCallback.eventQueued()) {
     

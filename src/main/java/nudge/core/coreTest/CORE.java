@@ -58,7 +58,7 @@ public final class CORE {
         window = new Window();
         
         window.initialize(application.config());
-        app.initialize();
+        
         
     
     }
@@ -67,9 +67,11 @@ public final class CORE {
         
         window.makeContextCurrent();
         window.createCapabilities();
+        window.glViewport();
         window.toggleVsync(window.vsyncEnabled());
         window.setVisible(true);
-    
+        
+        // todo: timerClass
         float beginTime = (float) glfwGetTime();
         float endTime;
         fps = 0.0f;
@@ -78,6 +80,8 @@ public final class CORE {
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
         glClearColor(0.3f, 0.5f, 0.7f, 0.0f);
+    
+        app.start();
         
         while (!window.shouldClose()) {
             
@@ -131,7 +135,7 @@ public final class CORE {
     
     public static boolean isMainThread(long threadID) {return threadID == CORE.MAIN_THREAD_ID;}
     
-    public static float deltaTime() { return instance.dt; }
+    public static float dt() { return instance.dt; }
     
     public static float fps() { return instance.fps; }
     

@@ -4,6 +4,7 @@ import nudge.core.view.VideoMode;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.Callback;
 
 import java.nio.IntBuffer;
@@ -13,7 +14,6 @@ import java.util.Objects;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowMonitor;
-import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 /**
@@ -25,7 +25,6 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Window implements IWindow {
     
     // todo: Create a god-damn logging system
-    // todo: Eventually having separate threads for glfw event-polling
     
     private long contextThreadID;
     
@@ -56,12 +55,6 @@ public class Window implements IWindow {
     private boolean capabilitiesCreated;
     private boolean contextCurrent;
     
-    private boolean windowPositionEvent;
-    private boolean windowSizeEvent;
-    private boolean framebufferSizeEvent;
-    private boolean windowIconifyEvent;
-    private boolean monitorEvent;
-    
     private GLFWVidMode monitorDefaultVidMode;
     private GLFWVidMode vidModeBeforeWindowed;
     
@@ -69,6 +62,9 @@ public class Window implements IWindow {
     private final IntBuffer tmpBuffer2;
     
     // When I start testing, I will experiment with the NudgeGLFW callbacks;
+    // Apparently, the display related callbacks are executed independently from glfwPollEvents.
+    // as opposed to the input based events.
+    
     private final GLFWWindowPosCallback windowPosCallback;
     private final GLFWWindowSizeCallback windowSizeCallback;
     private final GLFWFramebufferSizeCallback framebufferSizeCallback;
@@ -88,7 +84,6 @@ public class Window implements IWindow {
                 if (windowX != xpos || windowY != ypos) {
                     windowX = xpos;
                     windowY = ypos;
-                    windowPositionEvent = true;
                 }
             }
         };
@@ -100,7 +95,6 @@ public class Window implements IWindow {
                 if (windowWidth != width || windowHeight != height) {
                     windowWidth = width;
                     windowHeight = height;
-                    windowSizeEvent = true;
                 }
             }
         };
@@ -115,9 +109,8 @@ public class Window implements IWindow {
                     System.out.println("Window: frameBuffer values updated..");
                     frameBufferWidth = width;
                     frameBufferHeight = height;
-                    framebufferSizeEvent = true;
-                    System.out.println("Window: calling method: updateViewport(" + width + ", " + height + ");");
-                    updateViewport(width,height);
+                    updateViewportFields();
+                    glViewport();
                 }
                 else {
                     System.out.println("Window: frameBuffer values not updated..");
@@ -134,7 +127,6 @@ public class Window implements IWindow {
                     System.out.println("Window: minimized..");
                 }
                 else System.out.println("Window: restored from minimized..");
-                windowIconifyEvent = true;
             }
         };
         
@@ -159,16 +151,120 @@ public class Window implements IWindow {
     
         if (config == null) throw new IllegalStateException("Config cannot be null");
         
+        // Set error callback
+        GLFWErrorCallback.createPrint(System.err).set();
         
+        // Initialize the GLFW library
+        if (!glfwInit()) throw new IllegalStateException("Failed to Initialize GLFW.");
+        
+        // Application launch configuration
+        boolean resizable = config.resizableWindow();
+        int desiredWidth = config.desiredResolutionWidth();
+        int desiredHeight = config.desiredResolutionHeight();
+        aspectRatio = (float) desiredWidth / desiredHeight;
+        lockAspectRatio = config.lockAspectRatio();
+        vsync = config.verticalSynchronization();
+        windowed = config.windowedMode();
+        
+        // GLFW Window hints. Subject to change.
+        glfwDefaultWindowHints();
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+        glfwWindowHint(GLFW_RESIZABLE, resizable ? GLFW_TRUE : GLFW_FALSE);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        
+        // GLFW Monitor
+        
+        System.out.println("Window: detecting primary monitor..");
+        
+        monitor = glfwGetPrimaryMonitor();
+        GLFWVidMode vidMode = getVidMode();
     
-    }
+        System.out.println("Window: monitor vidMode default resolution: " + vidMode.width() + ", " + vidMode.height());
+        System.out.println("Window: monitor vidMode default refresh rate: " + vidMode.refreshRate() + " Hz");
+        
+        monitorDefaultVidMode = vidModeBeforeWindowed = vidMode;
+        
+        
+        
+        
+        // Window creation
+        
+        System.out.println("Window: creating the window.. ");
+        
+        if (windowed) {
+            System.out.println("Window: creating windowed mode window with desired resolution: " + desiredWidth + ", " + desiredHeight);
+            window = glfwCreateWindow(desiredWidth,desiredHeight,"Application",NULL,NULL);
+            if ( window == NULL ) throw new RuntimeException("Failed to create the GLFW window");
+            System.out.println("Window: windowed mode window created");
+        }
+        else {
+            
+            // We stick with the "go-to" resolution of the primary monitor if the monitor don't have support
+            // for the desired resolution.
+            //
+            // If so, depending on whether the aspect ratio is locked by the launch configuration, we readjust / don't readjust
+            // the aspect ratio to MATCH that resolution. Locked: The viewport will reflect the locked ratio independent of resolution
+            // with either horizontal or vertical border-boxes.
+            //
+            // Conversely. On support for the desired resolution, the window should display the view in
+            // proper full-screen without border-box.
+            
+            int resolutionWidth, resolutionHeight;
+            
+            if (resolutionSupportedByMonitor(desiredWidth,desiredHeight)) {
+                System.out.println("Window: resolution supported by monitor");
+                resolutionWidth = desiredWidth;
+                resolutionHeight = desiredHeight;
+            }
+            else {
+                System.out.println("Window: resolution NOT supported by monitor");
+                System.out.println("Window: using default monitor resolution..");
+                resolutionWidth = monitorDefaultVidMode.width();
+                resolutionHeight = monitorDefaultVidMode.height();
+            }
     
-    @Override
-    public void controlStep() {
+            System.out.println("Window: creating fullScreen window with resolution: " + resolutionWidth + ", " + resolutionHeight);
+            window = glfwCreateWindow(resolutionWidth,resolutionHeight,"Application",monitor,NULL);
+            
+            vidMode = getVidMode();
+            
+            System.out.println("Window: fullScreen window created");
+            System.out.println("Window: monitor vidMode resolution: " + vidMode.width() + ", " + vidMode.height());
+            System.out.println("Window: monitor vidMode refresh rate: " + vidMode.refreshRate() + " Hz");
+        }
         
-        // could check: if anything updated, is it correct?
+        getWindowSize(tmpBuffer1,tmpBuffer2);
+        windowWidth = tmpBuffer1.get(0);
+        windowHeight = tmpBuffer2.get(0);
+    
+        System.out.println("Window: window size: " + windowWidth + ", " + windowHeight);
+    
+        getFrameBufferSize(tmpBuffer1,tmpBuffer2);
+        frameBufferWidth = tmpBuffer1.get(0);
+        frameBufferHeight = tmpBuffer2.get(0);
+    
+        System.out.println("Window: framebuffer size: " + frameBufferWidth + ", " + frameBufferHeight);
+    
+        windowWidthBeforeFullScreen = windowWidth;
+        windowHeightBeforeFullScreen = windowHeight;
         
-        // also: could clear the screen if updated. if i have the step after swapBuffers.
+        if (windowed) {
+            
+            centerWindow();
+        }
+        else {
+            vidModeBeforeWindowed = vidMode;
+        }
+    
+        setAspectRatio(frameBufferWidth, frameBufferHeight, false);
+        
+        getWindowPosition(tmpBuffer1, tmpBuffer2);
+        windowX = tmpBuffer1.get(0);
+        windowY = tmpBuffer2.get(0);
+        
+        updateViewportFields(); // glViewport() is called by CORE after GL.createCapabilities():
     
     }
     
@@ -227,6 +323,18 @@ public class Window implements IWindow {
     
     @Override
     public void createCapabilities() {
+    
+        // About GL.createCapabilities():
+        // (http://forum.lwjgl.org/index.php?topic=6459.0)
+    
+        // "In order for LWJGL to actually know about the OpenGL context and initialize itself using that context,
+        // we have to call GL.createCapabilities(). It is only after that call that we can call OpenGL functions
+        // via methods on those GLxx and extension classes living in the org.lwjgl.opengl package."
+    
+        // it's not entirely clear to me. But before using certain functionality like calling ie. glfwShowWindow()
+        // below here, or glViewport() (inside Display's constructor, also below) or glGenTextures() inside our Texture class etc.
+        // we create an instance of our OPENGL context (glfwMakeContextCurrent(window)) through GL.createC..()
+        
         if (!capabilitiesCreated) {
             if (!contextCurrent)
                 throw new IllegalStateException("Context not current (use makeContextCurrent())");
@@ -252,24 +360,39 @@ public class Window implements IWindow {
     }
     
     @Override
-    public void setTitle(CharSequence title) {
+    public void glViewport() {
+        if (!capabilitiesCreated) throw new IllegalStateException("Window not initialized");
+        System.out.println("Window: calling method: glViewport(" + viewportX + ", " + viewportY +
+                                   ", " + viewportWidth + ", " + viewportHeight + ");");
+        GL11.glViewport(viewportX,viewportY,viewportWidth,viewportHeight);
+    }
+    
+    @Override
+    public void setWindowTitle(CharSequence title) {
         glfwSetWindowTitle(window, title);
     }
     
     @Override
     public void toggleVsync(boolean on) {
+        vsync = on;
         System.out.println("Window: toggle vsync: " + on);
         glfwSwapInterval(on ? 1 : 0);
     }
     
     @Override
+    public void lockAspectRatio(boolean lock) {
+        lockAspectRatio = lock;
+    }
+    
+    @Override
     public void centerWindow() {
     
+        System.out.println("Window: centering window..");
+        
         if (isWindowed()) {
             
             System.out.println("Window: currently in windowed mode..");
-            System.out.println("Window: centering window..");
-            GLFWVidMode vidMode = glfwGetVideoMode(monitor);
+            GLFWVidMode vidMode = getVidMode();
             
             System.out.println("Window: calling getWindowSize(tmpBuffer1, tmpBuffer2);");
             getWindowSize(tmpBuffer1,tmpBuffer2);
@@ -350,7 +473,7 @@ public class Window implements IWindow {
         else {
             System.out.println("Window: currently in fullScreen mode..");
             System.out.println("Window: storing current VidMode for monitor fullScreen mode..");
-            vidModeBeforeWindowed = glfwGetVideoMode(monitor);
+            vidModeBeforeWindowed = getVidMode();
             System.out.println("Window: Entering windowed mode with parameters: " + width + ", " + height);
             glfwSetWindowMonitor(window,NULL,0,0, width,height,GLFW_DONT_CARE);
             windowed = true;
@@ -367,7 +490,7 @@ public class Window implements IWindow {
         
         if (!windowed) {
             System.out.println("Window: currently in fullScreen mode..");
-            GLFWVidMode currentVidMode = glfwGetVideoMode(monitor);
+            GLFWVidMode currentVidMode = getVidMode();
             if (currentVidMode == null) throw new IllegalStateException(
                         "Window is not properly initialized. Could not identify a GLFWVidMode for monitor: " + monitor);
             if (width == currentVidMode.width() && height == currentVidMode.height()) {
@@ -404,13 +527,7 @@ public class Window implements IWindow {
         }
     
         float newAspectRatio = (float) resolutionWidth / resolutionHeight;
-        if (aspectRatio != newAspectRatio) {
-            if (!lockAspectRatio) {
-                System.out.println("Window: aspectRatio not locked");
-                System.out.println("Window: changing aspectRatio from: " + aspectRatio + " to " + newAspectRatio);
-                aspectRatio = newAspectRatio;
-            }
-        }
+        setAspectRatio(newAspectRatio,false);
         
         if (windowed) {
             
@@ -425,10 +542,8 @@ public class Window implements IWindow {
             
         }
         else {
-            
             System.out.println("Window: changing resolution to: " + resolutionWidth + ", " + resolutionHeight);
             glfwSetWindowSize(window,resolutionWidth,resolutionHeight);
-        
         }
     }
     
@@ -473,6 +588,31 @@ public class Window implements IWindow {
         }
     
         glfwSetWindowMonitor(window,monitor,0,0,width,height,refreshRate);
+    }
+    
+    @Override
+    public void minimizeWindow() {
+        System.out.println("Window: minimize window.. ");
+        glfwIconifyWindow(window);
+    }
+    
+    @Override
+    public void restoreWindow() {
+        System.out.println("Window: restore window.. ");
+        glfwRestoreWindow(window);
+    }
+    
+    @Override
+    public void maximizeWindow() {
+        System.out.println("Window: maximize window.. ");
+        glfwMaximizeWindow(window);
+    }
+    
+    @Override
+    public void focusWindow() {
+        // window should be visible and not iconified
+        System.out.println("Window: focus window.. ");
+        glfwFocusWindow(window);
     }
     
     @Override
@@ -570,14 +710,32 @@ public class Window implements IWindow {
         return aspectRatio;
     }
     
-    
-    
-    private void updateViewport(int fbWidth, int fbHeight) {
+    // follow up with Window.glViewport() to notify openGL
+    private void updateViewportFields() {
         
-        if (!capabilitiesCreated)
-            throw new IllegalStateException("Window not initialized");
-    
-        System.out.println("Window: updating viewport..");
+        System.out.println("Window: updating viewport fields..");
+        
+        int aspectWidth = frameBufferWidth;
+        int aspectHeight = (int)((float)aspectWidth / aspectRatio);
+        if (aspectHeight > frameBufferHeight) {
+            aspectHeight = frameBufferHeight;
+            aspectWidth = (int)((float)aspectHeight * aspectRatio);
+        }
+        int viewPortX = (int) (((float)frameBufferWidth / 2f) - ((float)aspectWidth / 2f));
+        int viewPortY = (int) (((float)frameBufferHeight / 2f) - ((float)aspectHeight / 2f));
+        
+        this.viewportWidth = aspectWidth;
+        this.viewportHeight = aspectHeight;
+        this.viewportWidthInv = 1f / aspectWidth;
+        this.viewportHeightInv = 1f / aspectHeight;
+        this.viewportX = viewPortX;
+        this.viewportY = viewPortY;
+        
+    }
+    // follow up with Window.glViewport() to notify openGL
+    private void updateViewportFields(int fbWidth, int fbHeight) {
+        
+        System.out.println("Window: updating viewport fields..");
         
         int aspectWidth = fbWidth;
         int aspectHeight = (int)((float)aspectWidth / aspectRatio);
@@ -594,11 +752,6 @@ public class Window implements IWindow {
         this.viewportHeightInv = 1f / aspectHeight;
         this.viewportX = viewPortX;
         this.viewportY = viewPortY;
-    
-        System.out.println("Window: calling method: glViewport(" + viewPortX + ", " + viewPortY +
-                                  ", " + aspectWidth + ", " + aspectHeight + ");");
-        
-        glViewport(viewPortX,viewPortY,aspectWidth,aspectHeight);
     }
     
     private boolean resolutionSupportedByMonitor(int resWidth, int resHeight) {
@@ -631,6 +784,47 @@ public class Window implements IWindow {
             }
         }
         return videoModes;
+    }
+    
+    private GLFWVidMode getVidMode() {
+        return glfwGetVideoMode(monitor);
+    }
+    
+    private void setAspectRatio(float newAspectRatio, boolean updateViewport) {
+        System.out.println("Window: changing aspectRatio from: " + aspectRatio + " to " + newAspectRatio);
+        if (aspectRatio != newAspectRatio) {
+            if (!lockAspectRatio) {
+                System.out.println("Window: changing aspectRatio from: " + aspectRatio + " to " + newAspectRatio);
+                aspectRatio = newAspectRatio;
+                if (updateViewport) {
+                    getFrameBufferSize(tmpBuffer1,tmpBuffer2);
+                    int width = tmpBuffer1.get(0);
+                    int height = tmpBuffer1.get(0);
+                    updateViewportFields(width,height);
+                    glViewport();
+                }
+                else System.out.println("Window: ..without updating viewport");
+            }
+            else System.out.println("Window: no change to aspectRatio: locked");
+        }
+    }
+    
+    private void setAspectRatio(int width, int height, boolean updateViewport) {
+        float newAspectRatio = (float) width / height;
+        System.out.println("Window: changing aspectRatio from: " + aspectRatio + " to " + newAspectRatio);
+        if (aspectRatio != newAspectRatio) {
+            if (!lockAspectRatio) {
+                System.out.println("Window: changing aspectRatio from: " + aspectRatio + " to " + newAspectRatio);
+                aspectRatio = newAspectRatio;
+                if (updateViewport) {
+                    updateViewportFields(width,height);
+                    glViewport();
+                }
+                else System.out.println("Window: ..without updating viewport");
+            }
+            else System.out.println("Window: no change to aspectRatio: locked");
+        }
+        
     }
     
     private void getFrameBufferSize(IntBuffer width, IntBuffer height) {

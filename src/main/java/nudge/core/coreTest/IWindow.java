@@ -12,7 +12,6 @@ public interface IWindow {
 
     // lifeCycle
     void initialize(LaunchConfig config);
-    void controlStep();
     void close();
     
     // setters
@@ -22,13 +21,19 @@ public interface IWindow {
     void swapBuffers();
     void pollInputEvents();
     void signalToClose();
-    void setTitle(CharSequence title);
+    void glViewport();
+    void setWindowTitle(CharSequence title);
     void toggleVsync(boolean on);
+    void lockAspectRatio(boolean lock);
     void centerWindow();
     void setCallback(Callback callback);
     void windowed(int width, int height);
     void fullScreen(int width, int height);
     void toggleFullScreen();
+    void minimizeWindow();
+    void restoreWindow();
+    void maximizeWindow();
+    void focusWindow();
     
     // getters
     long windowHandle();

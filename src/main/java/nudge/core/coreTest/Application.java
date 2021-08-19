@@ -15,7 +15,7 @@ public interface Application {
     String title();
     String version();
     double runtime();
-    void initialize();
+    void start();
     void queryInput();
     void update(float dt);
     void render();
