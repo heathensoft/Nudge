@@ -77,6 +77,10 @@ public class U {
             else return (x >> 8 != 0) ? logTable[t] - 141 : logTable[x] - 149;
         }
     }
+    
+    public static boolean isPow2(int i) {
+        return i > 0 && (i & -i) == i;
+    }
 
     public static void rotate(Vector2f dest, Vector2f origin, float angleDeg) {
 

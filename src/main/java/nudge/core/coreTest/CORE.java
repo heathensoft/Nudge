@@ -20,7 +20,7 @@ public final class CORE {
     
     private static CORE instance;
     
-    // Access any statically through get()
+    // Access through get()
     public IWindow window;
     public Application app;
     public Mouse mouse;
@@ -48,7 +48,7 @@ public final class CORE {
     
     private void initialize(Application application) {
         
-        if (application == null) throw new IllegalStateException(); // just suppressing IDEA "warnings"
+        if (application == null) throw new IllegalStateException();
         
         printSystemInfo();
         
@@ -70,6 +70,7 @@ public final class CORE {
         window.glViewport();
         window.toggleVsync(window.vsyncEnabled());
         window.setVisible(true);
+        window.focusWindow();
         
         // todo: timerClass
         float beginTime = (float) glfwGetTime();

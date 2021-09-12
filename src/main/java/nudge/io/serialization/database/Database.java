@@ -62,6 +62,8 @@ public class Database extends DBEntry implements Iterable<DBObject>{
     public void serializeToFile(String path) throws IOException{
         serializeToFile(new File(path));
     }
+    
+    // todo: use try write/read -> finally close
 
     public void serializeToFile(File file) throws IOException{
         // will and should overwrite existing files

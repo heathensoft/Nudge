@@ -18,7 +18,7 @@ public class BitMask {
     |  -------------------  |
     \*---------------------*/
 
-    // Converts a "8-bit Integer" to a 0 - 47 value, used to query
+    // Converts an "8-bit Integer" to a 0 - 47 value, used to query
     // tile-sheets. Can't get any faster than this buddy, i love it. Clap.
 
     private static final byte[] EIGHT_BIT = {  // (Array size: 256) SORTED

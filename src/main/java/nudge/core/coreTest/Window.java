@@ -24,7 +24,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Window implements IWindow {
     
-    // todo: Create a god-damn logging system
+    // todo: Create a logger
     
     private long contextThreadID;
     
