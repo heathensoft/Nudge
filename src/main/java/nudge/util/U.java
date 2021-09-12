@@ -77,6 +77,10 @@ public class U {
             else return (x >> 8 != 0) ? logTable[t] - 141 : logTable[x] - 149;
         }
     }
+    
+    public static boolean isPow2(int i) {
+        return i > 0 && (i & -i) == i;
+    }
 
     public static void rotate(Vector2f dest, Vector2f origin, float angleDeg) {
 
@@ -137,6 +141,10 @@ public class U {
 
     public static float round(float x) {
         return Math.round(x);
+    }
+
+    public static float lerp(float start, float end, float amount) {
+        return end * amount + start * (1 - amount);
     }
 
     public static int clamp(int value, int min, int max) {

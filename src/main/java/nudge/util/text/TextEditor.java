@@ -218,7 +218,7 @@ public class TextEditor implements Iterable<CharEntry> {
     @Override
     public Iterator<CharEntry> iterator() {
 
-        return new Iterator<>() {
+        return new Iterator<CharEntry>() {
 
             private CharEntry entry = TextEditor.this.sentinel;
 

@@ -13,27 +13,30 @@ public interface Application {
 
     void configure();
 
-    void create();
+    void init();
 
-    void handleInput();
-
-    void update(float dt);
-
-    void render();
+    void execute();
 
     void exit();
 
-    WinConfig settings();
+    Config settings();
 
     Camera camera();
 
-    String title();
+    float fps();
 
-    short versionMinor();
+    float ups();
 
-    short versionMajor();
+    double runtime();
 
-    long runtime();
+    default String title() {
+        return "NudgeApp";
+    }
+
+    default short versionMinor() { return 0; }
+
+    default short versionMajor() { return 0; }
+
 
 
 

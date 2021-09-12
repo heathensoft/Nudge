@@ -1,5 +1,6 @@
-package nudge.core;
+package discarded;
 
+import nudge.core.Config;
 import nudge.io.serialization.database.DBArray;
 import nudge.io.serialization.database.DBField;
 import nudge.io.serialization.database.DBObject;
@@ -15,7 +16,7 @@ import java.io.IOException;
  */
 
 
-public class ConfigExample implements WinConfig {
+public class ConfigExample implements Config {
 
 
     private final String KEY_BOOL           = "B";
@@ -60,16 +61,16 @@ public class ConfigExample implements WinConfig {
     private String directory;
 
     // DISPLAY
-    private boolean vsync           = DEFAULT_VSYNC;
-    private boolean resizable       = DEFAULT_RESIZABLE;
-    private boolean fullScreen      = DEFAULT_FULL_SCREEN;
-    private boolean useMonitorAR    = DEFAULT_USE_MONITOR_AR;
-    private boolean limitFPS        = DEFAULT_LIMIT_FPS;
+    private boolean vsync           = DEF_VSYNC;
+    private boolean resizable       = DEF_RESIZABLE;
+    private boolean fullScreen      = DEF_FULL_SCREEN;
+    private boolean useMonitorAR    = DEF_USE_MONITOR_AR;
+    private boolean limitFPS        = DEF_CAP_FPS;
 
-    private float aspectRatio       = DEFAULT_ASPECT_RATIO;
-    private int screenWidth         = DEFAULT_SCREEN_WIDTH;
-    private int screenHeight        = DEFAULT_SCREEN_HEIGHT;
-    private int targetFPS           = DEFAULT_TARGET_FPS;
+    private float aspectRatio       = DEF_ASPECT_RATIO;
+    private int screenWidth         = DEF_SCREEN_WIDTH;
+    private int screenHeight        = DEF_SCREEN_HEIGHT;
+    private int targetFPS           = DEF_TARGET_FPS;
 
     // AUDIO
     private boolean muted           = true;
@@ -125,8 +126,8 @@ public class ConfigExample implements WinConfig {
     public boolean fullScreenEnabled() { return fullScreen; }
 
     @Override
-    public boolean limitFPSEnabled() { return limitFPS; }
-
+    public boolean fpsCapEnabled() { return limitFPS; }
+    
 
     public void setTargetFPS(int value) { targetFPS = value; }
 

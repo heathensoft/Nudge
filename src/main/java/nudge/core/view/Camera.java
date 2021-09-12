@@ -55,9 +55,9 @@ public class Camera {
     public Camera(Vector2f position) {
         this(
                 position,
-                CORE.get().display().viewportWidth(),
+                CORE.get().display.viewportWidth(),
                 1,
-                CORE.get().display().viewportWidth(),
+                CORE.get().display.viewportWidth(),
                 1);
     }
 
@@ -73,8 +73,8 @@ public class Camera {
 
         virtualWidth_WO = unitSize_WO * widthInUnits_WO;
         virtualWidth_UI = unitSize_UI * widthInUnits_UI;
-        virtualHeight_WO = virtualWidth_WO / CORE.get().display().aspectRatio();
-        virtualHeight_UI = virtualWidth_UI / CORE.get().display().aspectRatio();
+        virtualHeight_WO = virtualWidth_WO / CORE.get().display.aspectRatio();
+        virtualHeight_UI = virtualWidth_UI / CORE.get().display.aspectRatio();
         virtualWidthHalf_WO = virtualWidth_WO / 2;
         virtualHeightHalf_WO = virtualHeight_WO / 2;
 
@@ -101,7 +101,7 @@ public class Camera {
     }
 
     private void setWindowMatrices() {
-        uiMatrix.ortho(0, virtualWidth_WO,0, virtualHeight_WO,0.0f,100.0f);
+        uiMatrix.ortho(0, virtualWidth_WO,0, virtualHeight_WO,-1.0f,1.0f);
         uiMatrix.invert(inverseUI);
     }
 
@@ -113,7 +113,7 @@ public class Camera {
         float bottom = -virtualHeightHalf_WO * zoom;
 
         projectionMatrix.identity();
-        projectionMatrix.ortho(left,right,bottom,top,0.0f,100.0f);
+        projectionMatrix.ortho(left,right,bottom,top,-1.0f,1.0f);
         projectionMatrix.invert(invProjection);
         worldView.setMax(position.x + right, position.y + top);
         worldView.setMin(position.x - right,position.y - top);
@@ -136,7 +136,7 @@ public class Camera {
     }
 
     public void unProject(Vector2f vec) {
-        Display display = CORE.get().display();
+        Display display = CORE.get().display;
         float x = vec.x - display.viewportX0();
         float y = vec.y - display.viewportY0();
         vec3Temp1.x = (2 * x) * display.viewportWidthInv() - 1;
@@ -147,7 +147,7 @@ public class Camera {
     }
 
     public void unProjectMouse(Vector2f world, Vector2f window) {
-        Display display = CORE.get().display();
+        Display display = CORE.get().display;
         float x = world.x - display.viewportX0();
         float y = world.y - display.viewportY0();
         vec3Temp1.x = (2 * x) * display.viewportWidthInv() - 1;
