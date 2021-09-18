@@ -1,14 +1,12 @@
-package discarded;
-
-import com.nudge.core.settings.Config;
+package com.nudge.core.settings;
 
 /**
  * @author Frederik Dahl
- * 13/07/2021
+ * 15/07/2021
  */
 
 
-public interface Default_1 extends Config {
+public interface Config {
     
     // CORE DISPLAY
     

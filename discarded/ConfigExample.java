@@ -1,11 +1,11 @@
 package discarded;
 
-import nudge.core.Config;
-import nudge.io.serialization.database.DBArray;
-import nudge.io.serialization.database.DBField;
-import nudge.io.serialization.database.DBObject;
-import nudge.io.serialization.database.Database;
-import nudge.util.U;
+import com.nudge.core.Config;
+import com.nudge.io.serialization.database.DBArray;
+import com.nudge.io.serialization.database.DBField;
+import com.nudge.io.serialization.database.DBObject;
+import com.nudge.io.serialization.database.Database;
+import com.nudge.util.U;
 
 import java.io.File;
 import java.io.IOException;

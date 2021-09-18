@@ -1,6 +1,6 @@
 package discarded;
 
-import nudge.util.U;
+import com.nudge.util.U;
 
 /**
  * @author Frederik Dahl
